@@ -125,7 +125,7 @@ simfuncpp <- function(vcvm){
 }
 
 simfun <- function(vcvm){
-                aug <- augment(vcvm,buff=.Machine$double.eps)
+                aug <- augment(vcvm,t=.Machine$double.eps)
                 zz <- aug[-1,-1]
                 zy <- as.matrix(aug[1,2:ncol(aug)])
                 betas <- solve(zz) %*% zy
