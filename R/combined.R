@@ -1,4 +1,4 @@
-augment <- function(corm,t=0.001){
+augment <- function(corm,buff=0.01){
 
     n <- ncol(corm)
     names <- colnames(as.data.frame(corm))
@@ -19,7 +19,7 @@ augment <- function(corm,t=0.001){
         upper <- tcrossprod(B_up)[n+1,j]
         lower <- tcrossprod(B_lo)[n+1,j]
 
-        if (upper - lower <= t){ cor <- (upper + lower)/2
+        if (upper - lower <= buff){ cor <- (upper + lower)/2
         }else{cor <- runif(1,lower,upper)}
 
         B[n+1,j] <- 1/B[j,j] * (cor - sum(B[n+1,1:(j-1)] * B[j,1:(j-1)]))
@@ -33,7 +33,7 @@ augment <- function(corm,t=0.001){
     out
 }
 
-augmentcpp <- function(corm,buff){
+augmentcpp <- function(corm,buff=0.01){
 
     n <- ncol(corm)
     names <- colnames(as.data.frame(corm))
@@ -71,13 +71,14 @@ factory <- function(fun){
   list(res, warn=warn, err=err)
 }
 
-RandomCorm <- function(nvars){
+RandomCorm <- function(nvars,buff=0.01){
 	cor <- runif(1,-1,1)
 	base <- matrix(c(1,cor,cor,1),nrow=2)
 
 	while(ncol(base) < nvars){
-		base <- augment(base)
-		}
+		base <- augment(base,buff)
+	}
+	rownames(base) <- colnames(base) <- paste0("V",1:nvars)
 	base
 }
 
@@ -92,6 +93,7 @@ RandomCormCPP <- function(nvars,buff=0.01){
 		base <- augmentcpp(base,buff)
 		}
 	}
+	rownames(base) <- colnames(base) <- paste0("V",1:nvars)
 	base
 }
 
@@ -125,7 +127,7 @@ simfuncpp <- function(vcvm){
 }
 
 simfun <- function(vcvm){
-                aug <- augment(vcvm,t=.Machine$double.eps)
+                aug <- augment(vcvm,buff=.Machine$double.eps)
                 zz <- aug[-1,-1]
                 zy <- as.matrix(aug[1,2:ncol(aug)])
                 betas <- solve(zz) %*% zy
