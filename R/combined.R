@@ -29,7 +29,8 @@ augment <- function(corm,buff=0.01){
     out <- tcrossprod(as.matrix(B))
     out <- out[match(c(index,n+1),c(rownames(out),n+1)),match(c(index,n+1),c(colnames(out),n+1))]
     colnames(out)[1:n] <- rownames(out)[1:n] <- names
-
+    colnames(out)[n+1] <- "Augment"
+    
     out
 }
 
@@ -99,7 +100,7 @@ RandomCormCPP <- function(nvars,buff=0.01){
 
 DOPE <- function(mod,nsims=10000,language="cpp",cl=NULL){
               output <- list()
-              mod_mat <- model.frame(m)
+              mod_mat <- model.frame(mod)
               names <- c(colnames(mod_mat)[-1],"ControlFunction","R_Squared")
               vcvm <- cov(mod_mat)
 
