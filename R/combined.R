@@ -98,11 +98,18 @@ RandomCormCPP <- function(nvars,buff=0.01){
 	base
 }
 
-DOPE <- function(mod,nsims=10000,language="cpp",cl=NULL){
+DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1){
               output <- list()
               mod_mat <- model.frame(mod)
               names <- c(colnames(mod_mat)[-1],"ControlFunction","R_Squared")
               vcvm <- cov(mod_mat)
+              
+              if(n.cores==1){
+                cl <- NULL
+              }else{
+                cl <- parallel::makeCluster(n.cores)
+                parallel::clusterEvalQ(cl,library(DOPE))
+              }
 
               if(language == "cpp"){
                 out <- as.data.frame(t(pbapply::pbsapply(1:nsims,function(x)simfuncpp(vcvm),cl=cl)))
