@@ -143,3 +143,34 @@ simfun <- function(vcvm){
                 output <- c(t(betas),rsq)
                 output
 }
+
+plot_DOPE <- function(DOPE_OUTPUT,which_var=1,type="histogram"){
+  
+  tmp <- DOPE_OUTPUT[,which_var]
+  pos <- pctpos(DOPE_OUTPUT)[which_var]
+  d <- density(tmp)
+  mode <- d$x[which.max(d$y)]
+  
+  if(type=="density"){
+    plot(d,xlim=c(median(tmp)-3*sd(tmp),median(tmp)+3*sd(tmp)),
+         main=paste0("DOPE: ", names(DOPE_OUTPUT)[which_var]))
+    legend("topleft",legend = c(paste0("Percent Positive: ",round(pos,3)),
+                                paste0("Median: ",round(median(tmp,3))),
+                                paste0("Lower95: ",round(quantile(tmp,0.025))),
+                                Paste0("Upper95: ",round(quantile(tmp,0.975)))
+                                )
+           )
+  }
+  
+  if(type=="histogram"){
+    hist(tmp,breaks=50,main=paste0("DOPE: ", names(DOPE_OUTPUT)[which_var]),
+                       xlab="Parameter Value")
+    legend("topleft",legend = c(paste0("Percent Positive: ",round(pos,3)),
+                                paste0("Median: ",round(median(tmp,3))),
+                                paste0("Lower95: ",round(quantile(tmp,0.025))),
+                                Paste0("Upper95: ",round(quantile(tmp,0.975)))
+                                )
+          )
+  }
+
+}
