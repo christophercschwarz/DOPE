@@ -157,7 +157,7 @@ plot_DOPE <- function(DOPE_OUTPUT,which_var=1,type="histogram"){
     legend("topleft",legend = c(paste0("Percent Positive: ",round(pos,3)),
                                 paste0("Median: ",round(median(tmp,3))),
                                 paste0("Lower95: ",round(quantile(tmp,0.025))),
-                                Paste0("Upper95: ",round(quantile(tmp,0.975)))
+                                paste0("Upper95: ",round(quantile(tmp,0.975)))
                                 )
            )
   }
@@ -168,7 +168,7 @@ plot_DOPE <- function(DOPE_OUTPUT,which_var=1,type="histogram"){
     legend("topleft",legend = c(paste0("Percent Positive: ",round(pos,3)),
                                 paste0("Median: ",round(median(tmp,3))),
                                 paste0("Lower95: ",round(quantile(tmp,0.025))),
-                                Paste0("Upper95: ",round(quantile(tmp,0.975)))
+                                paste0("Upper95: ",round(quantile(tmp,0.975)))
                                 )
           )
   }
