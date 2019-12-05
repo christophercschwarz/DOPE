@@ -122,7 +122,9 @@ DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1){
       out
 }
 
-pctpos <- function(DOPE_OUTPUT){t(apply(DOPE_OUTPUT,2,function(x)(length(x[which(x>0)])/length(x))))}
+pctpos <- function(DOPE_OUTPUT){
+    t(apply(DOPE_OUTPUT,2,function(x)(length(x[which(x>0)])/length(x))))
+}
 
 simfuncpp <- function(vcvm){
                 aug <- augmentcpp(vcvm,buff=.Machine$double.eps)
@@ -144,7 +146,7 @@ simfun <- function(vcvm){
                 output
 }
 
-plot_DOPE <- function(DOPE_OUTPUT,which_var=1,type="histogram"){
+plot_DOPE <- function(DOPE_OUTPUT,which_var=1,type="density"){
   
   tmp <- DOPE_OUTPUT[,which_var]
   pos <- pctpos(DOPE_OUTPUT)[which_var]
@@ -153,24 +155,70 @@ plot_DOPE <- function(DOPE_OUTPUT,which_var=1,type="histogram"){
   
   if(type=="density"){
     plot(d,xlim=c(median(tmp)-3*sd(tmp),median(tmp)+3*sd(tmp)),
-         main=paste0("DOPE: ", names(DOPE_OUTPUT)[which_var]))
+         main=paste0("DOPE: ", names(DOPE_OUTPUT)[which_var]),lwd=3)
     legend("topleft",legend = c(paste0("Percent Positive: ",round(pos,3)),
-                                paste0("Median: ",round(median(tmp,3))),
-                                paste0("Lower95: ",round(quantile(tmp,0.025))),
-                                paste0("Upper95: ",round(quantile(tmp,0.975)))
+                                paste0("Median: ",round(median(tmp),3)),
+                                paste0("Mode: ", round(mode,3)),
+                                paste0("Lower95: ",round(quantile(tmp,0.025),3)),
+                                paste0("Upper95: ",round(quantile(tmp,0.975),3)),
+                                paste0("Draws: ", length(tmp))
                                 )
            )
   }
   
   if(type=="histogram"){
-    hist(tmp,breaks=50,main=paste0("DOPE: ", names(DOPE_OUTPUT)[which_var]),
-                       xlab="Parameter Value")
+    hist(tmp,breaks=200,main=paste0("DOPE: ", names(DOPE_OUTPUT)[which_var]),
+                       xlab="Parameter Value",
+                       xlim=c(median(tmp)-3*sd(tmp),median(tmp)+3*sd(tmp)))
     legend("topleft",legend = c(paste0("Percent Positive: ",round(pos,3)),
-                                paste0("Median: ",round(median(tmp,3))),
-                                paste0("Lower95: ",round(quantile(tmp,0.025))),
-                                paste0("Upper95: ",round(quantile(tmp,0.975)))
+                                paste0("Median: ",round(median(tmp),3)),
+                                paste0("Mode: ", round(mode,3)),
+                                paste0("Lower95: ",round(quantile(tmp,0.025),3)),
+                                paste0("Upper95: ",round(quantile(tmp,0.975),3)),
+                                paste0("Draws: ", length(tmp))
                                 )
           )
   }
 
+}
+
+
+add_DOPE <- function(DOPE_OUTPUT,restriction,which_var=1,type="density"){
+
+  sub <- with(DOPE_OUTPUT,eval(parse(text=restriction)))
+  tmp <- DOPE_OUTPUT[sub,which_var]
+  pos <- pctpos(DOPE_OUTPUT[sub,])[which_var]
+  d <- density(tmp)
+  mode <- d$x[which.max(d$y)]
+  
+  if(type=="density"){
+    lines(d,col="blue",lwd=3)
+    legend("topright",legend = c(paste0("Percent Positive: ",round(pos,3)),
+                                paste0("Median: ",round(median(tmp),3)),
+                                paste0("Mode: ", round(mode,3)),
+                                paste0("Lower95: ",round(quantile(tmp,0.025),3)),
+                                paste0("Upper95: ",round(quantile(tmp,0.975),3)),
+                                paste0("Draws: ", length(tmp))
+    )
+    )
+  }
+  
+  if(type=="histogram"){
+    hist(tmp,breaks=200,add=T,col="blue")
+    legend("topright",legend = c(paste0("Percent Positive: ",round(pos,3)),
+                                paste0("Median: ",round(median(tmp),3)),
+                                paste0("Mode: ", round(mode,3)),
+                                paste0("Lower95: ",round(quantile(tmp,0.025),3)),
+                                paste0("Upper95: ",round(quantile(tmp,0.975),3)),
+                                paste0("Draws: ", length(tmp))
+    )
+    )
+  }
+  
+}
+
+mode_DOPE <- function(DOPE_OUTPUT,which_var=1){
+  x <- DOPE_OUTPUT[,which_var]
+  d <- density(x)
+  d$x[which.max(d$y)]
 }
