@@ -99,27 +99,27 @@ RandomCormCPP <- function(nvars,buff=0.01){
 }
 
 DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1){
-              output <- list()
-              mod_mat <- model.frame(mod)
-              names <- c(colnames(mod_mat)[-1],"ControlFunction","R_Squared")
-              vcvm <- cov(mod_mat)
-              
-              if(n.cores==1){
-                cl <- NULL
-              }else{
-                cl <- parallel::makeCluster(n.cores)
-                parallel::clusterEvalQ(cl,library(DOPE))
-              }
-
-              if(language == "cpp"){
-                out <- as.data.frame(t(pbapply::pbsapply(1:nsims,function(x)simfuncpp(vcvm),cl=cl)))
-              }
-
-              if(language == "R"){
-                out <- as.data.frame(t(pbapply::pbsapply(1:nsims,function(x)simfun(vcvm),cl=cl)))
-              }
-      colnames(out) <- names
-      out
+  output <- list()
+  mod_mat <- as.matrix(model.matrix(mod)[,-1])
+  names <- c(colnames(mod_mat)[-1],"ControlFunction","R_Squared")
+  vcvm <- cov(mod_mat)
+  
+  if(n.cores==1){
+    cl <- NULL
+  }else{
+    cl <- parallel::makeCluster(n.cores)
+    parallel::clusterEvalQ(cl,library(DOPE))
+  }
+  
+  if(language == "cpp"){
+    out <- as.data.frame(t(pbapply::pbsapply(1:nsims,function(x)simfuncpp(vcvm),cl=cl)))
+  }
+  
+  if(language == "R"){
+    out <- as.data.frame(t(pbapply::pbsapply(1:nsims,function(x)simfun(vcvm),cl=cl)))
+  }
+  colnames(out) <- names
+  out
 }
 
 pctpos <- function(DOPE_OUTPUT){
@@ -127,7 +127,18 @@ pctpos <- function(DOPE_OUTPUT){
 }
 
 simfuncpp <- function(vcvm){
-                aug <- augmentcpp(vcvm,buff=.Machine$double.eps)
+                psd <- FALSE
+                attempts <- 0
+                while(psd == FALSE){
+                  attempts <- attempts + 1
+                  if(attempts > 10){
+                    print("Ill Conditioned System")
+                    break
+                  }
+                  aug <- augmentcpp(vcvm,buff=0.01)
+                  psd <- !any(eigen(aug)$values < 1e-8)
+                }
+                
                 zz <- aug[-1,-1]
                 zy <- as.matrix(aug[1,2:ncol(aug)])
                 betas <- solve(zz) %*% zy
@@ -137,7 +148,17 @@ simfuncpp <- function(vcvm){
 }
 
 simfun <- function(vcvm){
-                aug <- augment(vcvm,buff=.Machine$double.eps)
+                psd <- FALSE
+                attempts <- 0
+                while(psd == FALSE){
+                  attempts <- attempts + 1
+                  if(attempts > 10){
+                    print("Ill Conditioned System")
+                    break
+                  }
+                  aug <- augment(vcvm,buff=0.01)
+                  psd <- !any(eigen(aug)$values < 1e-8)
+                }
                 zz <- aug[-1,-1]
                 zy <- as.matrix(aug[1,2:ncol(aug)])
                 betas <- solve(zz) %*% zy
