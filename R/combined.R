@@ -1,4 +1,4 @@
-augment <- function(corm,buff=0.01){
+augment <- function(corm,buff=sqrt(.Machine$double.eps)){
 
     n <- ncol(corm)
     names <- colnames(as.data.frame(corm))
@@ -34,7 +34,7 @@ augment <- function(corm,buff=0.01){
     out
 }
 
-augmentcpp <- function(corm,buff=0.01){
+augmentcpp <- function(corm,buff=sqrt(.Machine$double.eps)){
 
     n <- ncol(corm)
     names <- colnames(as.data.frame(corm))
@@ -72,7 +72,7 @@ factory <- function(fun){
   list(res, warn=warn, err=err)
 }
 
-RandomCorm <- function(nvars,buff=0.01){
+RandomCorm <- function(nvars,buff=sqrt(.Machine$double.eps)){
 	cor <- runif(1,-1,1)
 	base <- matrix(c(1,cor,cor,1),nrow=2)
 
@@ -83,7 +83,7 @@ RandomCorm <- function(nvars,buff=0.01){
 	base
 }
 
-RandomCormCPP <- function(nvars,buff=0.01){
+RandomCormCPP <- function(nvars,buff=sqrt(.Machine$double.eps)){
 	cor <- runif(1,-1,1)
 	base <- matrix(c(1,cor,cor,1),nrow=2)
 
@@ -100,8 +100,9 @@ RandomCormCPP <- function(nvars,buff=0.01){
 
 DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1){
   output <- list()
-  mod_mat <- as.matrix(model.matrix(mod)[,-1])
-  names <- c(colnames(mod_mat)[-1],"ControlFunction","R_Squared")
+  mm <- model.matrix(mod)
+  mod_mat <- as.matrix(data.frame(y=model.frame(mod)[,1],mm[,-1]))
+  names <- c(colnames(mm)[-1],"ControlFunction","R_Squared")
   vcvm <- cov(mod_mat)
   
   if(n.cores==1){
@@ -113,10 +114,12 @@ DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1){
   
   if(language == "cpp"){
     out <- as.data.frame(t(pbapply::pbsapply(1:nsims,function(x)simfuncpp(vcvm),cl=cl)))
+    parallel::stopCluster(cl)
   }
   
   if(language == "R"){
     out <- as.data.frame(t(pbapply::pbsapply(1:nsims,function(x)simfun(vcvm),cl=cl)))
+    parallel::stopCluster(cl)
   }
   colnames(out) <- names
   out
@@ -167,7 +170,7 @@ simfun <- function(vcvm){
                 output
 }
 
-plot_DOPE <- function(DOPE_OUTPUT,which_var=1,type="density"){
+plot_DOPE <- function(DOPE_OUTPUT,which_var=1,type="histogram",width=2,bindiv=2){
   
   tmp <- DOPE_OUTPUT[,which_var]
   pos <- pctpos(DOPE_OUTPUT)[which_var]
@@ -175,11 +178,11 @@ plot_DOPE <- function(DOPE_OUTPUT,which_var=1,type="density"){
   mode <- d$x[which.max(d$y)]
   
   if(type=="density"){
-    plot(d,xlim=c(median(tmp)-3*sd(tmp),median(tmp)+3*sd(tmp)),
+    plot(d,xlim=c(median(tmp)-width*sd(tmp),median(tmp)+width*sd(tmp)),
          main=paste0("DOPE: ", names(DOPE_OUTPUT)[which_var]),lwd=3)
     legend("topleft",legend = c(paste0("Percent Positive: ",round(pos,3)),
                                 paste0("Median: ",round(median(tmp),3)),
-                                paste0("Mode: ", round(mode,3)),
+                                #paste0("Mode: ", round(mode,3)),
                                 paste0("Lower95: ",round(quantile(tmp,0.025),3)),
                                 paste0("Upper95: ",round(quantile(tmp,0.975),3)),
                                 paste0("Draws: ", length(tmp))
@@ -188,12 +191,12 @@ plot_DOPE <- function(DOPE_OUTPUT,which_var=1,type="density"){
   }
   
   if(type=="histogram"){
-    hist(tmp,breaks=200,main=paste0("DOPE: ", names(DOPE_OUTPUT)[which_var]),
+    hist(tmp,breaks=nrow(DOPE_OUTPUT)/bindiv,freq=F,main=paste0("DOPE: ", names(DOPE_OUTPUT)[which_var]),
                        xlab="Parameter Value",
-                       xlim=c(median(tmp)-3*sd(tmp),median(tmp)+3*sd(tmp)))
+                       xlim=c(median(tmp)-width*sd(tmp),median(tmp)+width*sd(tmp)))
     legend("topleft",legend = c(paste0("Percent Positive: ",round(pos,3)),
                                 paste0("Median: ",round(median(tmp),3)),
-                                paste0("Mode: ", round(mode,3)),
+                                #paste0("Mode: ", round(mode,3)),
                                 paste0("Lower95: ",round(quantile(tmp,0.025),3)),
                                 paste0("Upper95: ",round(quantile(tmp,0.975),3)),
                                 paste0("Draws: ", length(tmp))
@@ -204,7 +207,7 @@ plot_DOPE <- function(DOPE_OUTPUT,which_var=1,type="density"){
 }
 
 
-add_DOPE <- function(DOPE_OUTPUT,restriction,which_var=1,type="density"){
+add_DOPE <- function(DOPE_OUTPUT,restriction,which_var=1,type="histogram",bindiv=2){
 
   sub <- with(DOPE_OUTPUT,eval(parse(text=restriction)))
   tmp <- DOPE_OUTPUT[sub,which_var]
@@ -216,7 +219,7 @@ add_DOPE <- function(DOPE_OUTPUT,restriction,which_var=1,type="density"){
     lines(d,col="blue",lwd=3)
     legend("topright",legend = c(paste0("Percent Positive: ",round(pos,3)),
                                 paste0("Median: ",round(median(tmp),3)),
-                                paste0("Mode: ", round(mode,3)),
+                                #paste0("Mode: ", round(mode,3)),
                                 paste0("Lower95: ",round(quantile(tmp,0.025),3)),
                                 paste0("Upper95: ",round(quantile(tmp,0.975),3)),
                                 paste0("Draws: ", length(tmp))
@@ -225,10 +228,10 @@ add_DOPE <- function(DOPE_OUTPUT,restriction,which_var=1,type="density"){
   }
   
   if(type=="histogram"){
-    hist(tmp,breaks=200,add=T,col="blue")
+    hist(tmp,breaks=nrow(DOPE_OUTPUT)/bindiv,freq=F,add=T,col="red")
     legend("topright",legend = c(paste0("Percent Positive: ",round(pos,3)),
                                 paste0("Median: ",round(median(tmp),3)),
-                                paste0("Mode: ", round(mode,3)),
+                                #paste0("Mode: ", round(mode,3)),
                                 paste0("Lower95: ",round(quantile(tmp,0.025),3)),
                                 paste0("Upper95: ",round(quantile(tmp,0.975),3)),
                                 paste0("Draws: ", length(tmp))
@@ -242,4 +245,39 @@ mode_DOPE <- function(DOPE_OUTPUT,which_var=1){
   x <- DOPE_OUTPUT[,which_var]
   d <- density(x)
   d$x[which.max(d$y)]
+}
+
+noise_plot <- function(DOPE_OUTPUT, which_var = 1){
+  
+  DOPE_OUTPUT <- selectorate
+  which_var <- 2
+  
+  rsqs <- seq(min(DOPE_OUTPUT$R_Squared)+0.0001,1,length=50)
+  ppos <- unlist(lapply(rsqs,function(x)pctpos(DOPE_OUTPUT[which(DOPE_OUTPUT$R_Squared < x),])[which_var]))
+  sgn <- sign(median(DOPE_OUTPUT[,which_var]))
+  if(sgn < 0){
+    ppos <- 1-ppos
+  }
+  infoloss <- unlist(lapply(rsqs,function(x)nrow(DOPE_OUTPUT[which(DOPE_OUTPUT$R_Squared < x),])))
+  infoloss <- 1- infoloss/nrow(DOPE_OUTPUT)
+  
+  par(mar=c(5,5,2,5))
+  plot(rsqs,ppos,xlab="Unmodeled Systematic Variation",ylab="Percent Results Same Sign as Naive",type="p",
+       ylim=c(0.3,1))
+  legend("bottomleft",legend=c("Coefficient Sign Certainty","Assumption Restrictiveness","Maximal Uncertainty")
+         ,pch=c(1,19,NA),lty=c(0,0,2))
+  mpps <- pctpos(DOPE_OUTPUT)[which_var]
+  if(sgn < 0){
+    mpps <- 1-mpps
+    abline(h=mpps,lty=2,lwd=2)
+  }else{
+    abline(h=mpps,lty=2,lwd=2)
+  }
+  par(new=T)
+  plot(rsqs,infoloss,axes=F,xlab=NA,ylab=NA,pch=19)
+  axis(side=4)
+  mtext(side = 4, line =3, "Percent DOPE Draws Rejected")
+  
+  #auc <- sum(diff(rsqs)[1]*ppos)/((1-min(rsqs))*(1-mpps))
+  #legend("topright",legend=paste0("AUC: ",round(auc,4)),lty=0,pch=NA)
 }
