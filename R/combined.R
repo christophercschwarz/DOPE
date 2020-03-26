@@ -1,41 +1,40 @@
-augment <- function(corm,buff=sqrt(.Machine$double.eps)){
-
-    n <- ncol(corm)
-    names <- colnames(as.data.frame(corm))
-    index <- as.character(1:n)
-    colnames(corm) <- rownames(corm) <- index
-    perm <- sample(1:n)
-    corm <- (corm[perm,])[,perm]
-
-    B <- as.data.frame(t(chol(corm)))
-
-    B[n+1,] <- B[,n+1] <- 0
-    B[n+1,1] <- runif(1,-1,1)
-    for (j in 2:n){
-        B_up <- B_lo <- as.matrix(B)
-        B_up[n+1,j] <-  sqrt(1-sum(B_up[n+1,1:(j-1)]^2))
-        B_lo[n+1,j] <- -sqrt(1-sum(B_lo[n+1,1:(j-1)]^2))
-
-        upper <- tcrossprod(B_up)[n+1,j]
-        lower <- tcrossprod(B_lo)[n+1,j]
-
-        if (upper - lower <= buff){ cor <- (upper + lower)/2
-        }else{cor <- runif(1,lower,upper)}
-
-        B[n+1,j] <- 1/B[j,j] * (cor - sum(B[n+1,1:(j-1)] * B[j,1:(j-1)]))
+augment <- function(covm, buff = sqrt(.Machine$double.eps)){
+  corm <- sc(covm)[[1]]
+  n <- ncol(corm)
+  names <- colnames(as.data.frame(corm))
+  index <- as.character(1:n)
+  colnames(corm) <- rownames(corm) <- index
+  perm <- sample(1:n)
+  corm <- (corm[perm, ])[, perm]
+  B <- as.data.frame(t(chol(corm)))
+  B[n + 1, ] <- B[, n + 1] <- 0
+  B[n + 1, 1] <- runif(1, -1, 1)
+  for (j in 2:n) {
+    B_up <- B_lo <- as.matrix(B)
+    B_up[n + 1, j] <- sqrt(1 - sum(B_up[n + 1, 1:(j - 1)]^2))
+    B_lo[n + 1, j] <- -sqrt(1 - sum(B_lo[n + 1, 1:(j - 1)]^2))
+    upper <- tcrossprod(B_up)[n + 1, j]
+    lower <- tcrossprod(B_lo)[n + 1, j]
+    if (upper - lower <= buff) {
+      cor <- (upper + lower)/2
     }
-    B[n+1,n+1] <- sqrt(1 - sum(B[(n+1),1:n]^2))
-
-    out <- tcrossprod(as.matrix(B))
-    out <- out[match(c(index,n+1),c(rownames(out),n+1)),match(c(index,n+1),c(colnames(out),n+1))]
-    colnames(out)[1:n] <- rownames(out)[1:n] <- names
-    colnames(out)[n+1] <- "Augment"
-    
-    out
+    else {
+      cor <- runif(1, lower, upper)
+    }
+    B[n + 1, j] <- 1/B[j, j] * (cor - sum(B[n + 1, 1:(j - 
+                                                        1)] * B[j, 1:(j - 1)]))
+  }
+  B[n + 1, n + 1] <- sqrt(1 - sum(B[(n + 1), 1:n]^2))
+  out <- tcrossprod(as.matrix(B))
+  out <- out[match(c(index, n + 1), c(rownames(out), n + 1)), 
+             match(c(index, n + 1), c(colnames(out), n + 1))]
+  colnames(out)[1:n] <- rownames(out)[1:n] <- names
+  colnames(out)[n + 1] <- "Augment"
+  usc(out,c(sc(covm)[[2]],1))
 }
 
 augmentcpp <- function(corm,buff=sqrt(.Machine$double.eps)){
-
+    corm <- sc(covm)[[1]]
     n <- ncol(corm)
     names <- colnames(as.data.frame(corm))
     index <- as.character(1:n)
@@ -56,7 +55,7 @@ augmentcpp <- function(corm,buff=sqrt(.Machine$double.eps)){
     out <- out[match(c(index,n+1),c(rownames(out),n+1)),match(c(index,n+1),c(colnames(out),n+1))]
     colnames(out)[1:n] <- rownames(out)[1:n] <- names
 
-    out
+    usc(out,c(sc(covm)[[2]],1))
 }
 
 factory <- function(fun){
@@ -125,8 +124,16 @@ DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1){
   out
 }
 
-pctpos <- function(DOPE_OUTPUT){
-    t(apply(DOPE_OUTPUT,2,function(x)(length(x[which(x>0)])/length(x))))
+sc <- function(covm){
+  Is <- sqrt(1/diag(cvm))
+  corm <- diag(Is) %*%  cvm %*% t(diag(Is))
+  list(corm,Is)
+}
+
+usc <- function(corm,Is){
+  Is <- sqrt(1/Is^2)
+  covm <- diag(Is) %*% corm %*% t(diag(Is))
+  covm
 }
 
 simfuncpp <- function(vcvm){
@@ -170,114 +177,84 @@ simfun <- function(vcvm){
                 output
 }
 
-plot_DOPE <- function(DOPE_OUTPUT,which_var=1,type="histogram",width=2,bindiv=2){
-  
-  tmp <- DOPE_OUTPUT[,which_var]
-  pos <- pctpos(DOPE_OUTPUT)[which_var]
-  d <- density(tmp)
-  mode <- d$x[which.max(d$y)]
-  
-  if(type=="density"){
-    plot(d,xlim=c(median(tmp)-width*sd(tmp),median(tmp)+width*sd(tmp)),
-         main=paste0("DOPE: ", names(DOPE_OUTPUT)[which_var]),lwd=3)
-    legend("topleft",legend = c(paste0("Percent Positive: ",round(pos,3)),
-                                paste0("Median: ",round(median(tmp),3)),
-                                #paste0("Mode: ", round(mode,3)),
-                                paste0("Lower95: ",round(quantile(tmp,0.025),3)),
-                                paste0("Upper95: ",round(quantile(tmp,0.975),3)),
-                                paste0("Draws: ", length(tmp))
-                                )
-           )
-  }
-  
-  if(type=="histogram"){
-    hist(tmp,breaks=nrow(DOPE_OUTPUT)/bindiv,freq=F,main=paste0("DOPE: ", names(DOPE_OUTPUT)[which_var]),
-                       xlab="Parameter Value",
-                       xlim=c(median(tmp)-width*sd(tmp),median(tmp)+width*sd(tmp)))
-    legend("topleft",legend = c(paste0("Percent Positive: ",round(pos,3)),
-                                paste0("Median: ",round(median(tmp),3)),
-                                #paste0("Mode: ", round(mode,3)),
-                                paste0("Lower95: ",round(quantile(tmp,0.025),3)),
-                                paste0("Upper95: ",round(quantile(tmp,0.975),3)),
-                                paste0("Draws: ", length(tmp))
-                                )
-          )
-  }
-
+stats <- function(coefs){
+  draws <- length(coefs)
+  med <- median(coefs)
+  l95 <- quantile(coefs,0.025)
+  u95 <- quantile(coefs,0.975)
+  ppos <- sum(coefs>0)/draws
+  out <- data.frame(Summary = c("Percent Positive",
+                                "Median",
+                                "Lower 95",
+                                "Upper 95",
+                                "Draws"),
+                    Value = c(ppos*100,med,l95,u95,draws))
+  out$Value <- round(out$Value,2)
+  out
 }
 
 
-add_DOPE <- function(DOPE_OUTPUT,restriction,which_var=1,type="histogram",bindiv=2){
-
-  sub <- with(DOPE_OUTPUT,eval(parse(text=restriction)))
-  tmp <- DOPE_OUTPUT[sub,which_var]
-  pos <- pctpos(DOPE_OUTPUT[sub,])[which_var]
-  d <- density(tmp)
-  mode <- d$x[which.max(d$y)]
+plot_DOPE <- function(output,vname,xmin=NULL,xmax=NULL,bw=0.2,shade=FALSE){
   
-  if(type=="density"){
-    lines(d,col="blue",lwd=3)
-    legend("topright",legend = c(paste0("Percent Positive: ",round(pos,3)),
-                                paste0("Median: ",round(median(tmp),3)),
-                                #paste0("Mode: ", round(mode,3)),
-                                paste0("Lower95: ",round(quantile(tmp,0.025),3)),
-                                paste0("Upper95: ",round(quantile(tmp,0.975),3)),
-                                paste0("Draws: ", length(tmp))
-    )
-    )
+  if(shade){
+    g <- ggplot(output,aes(x=output[,vname])) + 
+      geom_histogram(binwidth=bw, color="black",na.rm=T)
+    ncuts <- nrow(ggplot_build(g)$data[[1]])
+    output$fillz <- cut(output$R_Squared,ncuts)
+    col = NA
+  }else{
+    fillz <- "grey35"
+    col <- "black"
   }
   
-  if(type=="histogram"){
-    hist(tmp,breaks=nrow(DOPE_OUTPUT)/bindiv,freq=F,add=T,col="red")
-    legend("topright",legend = c(paste0("Percent Positive: ",round(pos,3)),
-                                paste0("Median: ",round(median(tmp),3)),
-                                #paste0("Mode: ", round(mode,3)),
-                                paste0("Lower95: ",round(quantile(tmp,0.025),3)),
-                                paste0("Upper95: ",round(quantile(tmp,0.975),3)),
-                                paste0("Draws: ", length(tmp))
-    )
-    )
-  }
+  lims <- c(ifelse(is.null(xmin),min(output[,vname]),xmin),
+            ifelse(is.null(xmax),max(output[,vname]),xmax))
   
+  ggplot(output,aes(x=output[,vname],fill=fillz)) + 
+    geom_histogram(binwidth=bw,color=col,show.legend = F,na.rm=T) +
+    scale_fill_grey() +
+    theme_bw() +
+    xlim(lims) +
+    xlab("Coefficient Value") +
+    ylab("Frequency") + 
+    annotate("table",-Inf,Inf,
+             label=list(stats(output[,vname])),
+             hjust=0,vjust=1)
 }
 
-mode_DOPE <- function(DOPE_OUTPUT,which_var=1){
-  x <- DOPE_OUTPUT[,which_var]
-  d <- density(x)
-  d$x[which.max(d$y)]
-}
 
-noise_plot <- function(DOPE_OUTPUT, which_var = 1){
+
+noise_plot <- function(output,vname,adj=0.3){
+  rsqs <- seq(min(output$R_Squared) + 0.0001,1,length=50)
   
-  DOPE_OUTPUT <- selectorate
-  which_var <- 2
+  ppos <- unlist(lapply(rsqs,function(x)nrow(
+    output[which(output$R_Squared < x & output[,vname] > 0),])/nrow(
+      output[which(output$R_Squared < x),])))
   
-  rsqs <- seq(min(DOPE_OUTPUT$R_Squared)+0.0001,1,length=50)
-  ppos <- unlist(lapply(rsqs,function(x)pctpos(DOPE_OUTPUT[which(DOPE_OUTPUT$R_Squared < x),])[which_var]))
-  sgn <- sign(median(DOPE_OUTPUT[,which_var]))
+  sgn <- sign(median(output[,vname]))
   if(sgn < 0){
     ppos <- 1-ppos
   }
-  infoloss <- unlist(lapply(rsqs,function(x)nrow(DOPE_OUTPUT[which(DOPE_OUTPUT$R_Squared < x),])))
-  infoloss <- 1- infoloss/nrow(DOPE_OUTPUT)
+  infoloss <- unlist(lapply(rsqs,function(x)nrow(output[which(output$R_Squared < x),])))
+  infoloss <- 1- infoloss/nrow(output)
   
-  par(mar=c(5,5,2,5))
-  plot(rsqs,ppos,xlab="Unmodeled Systematic Variation",ylab="Percent Results Same Sign as Naive",type="p",
-       ylim=c(0.3,1))
-  legend("bottomleft",legend=c("Coefficient Sign Certainty","Assumption Restrictiveness","Maximal Uncertainty")
-         ,pch=c(1,19,NA),lty=c(0,0,2))
-  mpps <- pctpos(DOPE_OUTPUT)[which_var]
-  if(sgn < 0){
-    mpps <- 1-mpps
-    abline(h=mpps,lty=2,lwd=2)
-  }else{
-    abline(h=mpps,lty=2,lwd=2)
-  }
-  par(new=T)
-  plot(rsqs,infoloss,axes=F,xlab=NA,ylab=NA,pch=19)
-  axis(side=4)
-  mtext(side = 4, line =3, "Percent DOPE Draws Rejected")
-  
-  #auc <- sum(diff(rsqs)[1]*ppos)/((1-min(rsqs))*(1-mpps))
-  #legend("topright",legend=paste0("AUC: ",round(auc,4)),lty=0,pch=NA)
+  tmp <- data.frame(rsqs,ppos,infoloss)
+  tmp %>% ggplot(aes(x=rsqs,y=ppos)) +
+    theme_bw() +
+    geom_hline(aes(yintercept = min(ppos),color="Maximal Uncertainty"),linetype="dashed") +
+    scale_y_continuous(name="Proportion Same Sign as Naive",limits = c(adj,1),
+                       sec.axis=sec_axis(~ (.-adj)/(1-adj),
+                                         name="Proportion Draws Rejected")) +
+    xlab("Maximum R Squared") +
+    geom_point(aes(color="Proportion Same Sign")) +
+    geom_point(aes(y=infoloss/(1/(1-adj))+adj,color="Draws Rejected"),shape=1) +
+    scale_color_manual(name="",values=c("black","black","black"),
+                       labels=c("Maximal Uncertainty","Proportion Same Sign","Draws Rejected"),
+                       guide="legend") +
+    guides(colour = guide_legend(override.aes = list(linetype=c(2,0,0),
+                                                     shape=c(NA,19,1)))) +
+    theme(legend.justification = c(0,0),legend.position = c(0,0),
+          legend.background = element_blank(), legend.title = element_blank(),
+          legend.box.background = element_rect(colour = "black"))
 }
+
