@@ -125,8 +125,8 @@ DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1){
 }
 
 sc <- function(covm){
-  Is <- sqrt(1/diag(cvm))
-  corm <- diag(Is) %*%  cvm %*% t(diag(Is))
+  Is <- sqrt(1/diag(covm))
+  corm <- diag(Is) %*% covm %*% t(diag(Is))
   list(corm,Is)
 }
 
