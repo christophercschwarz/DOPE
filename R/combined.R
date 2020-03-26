@@ -45,6 +45,7 @@ augmentcpp <- function(covm,buff=sqrt(.Machine$double.eps)){
     Is <- sqrt(1/diag(covm))
     corm <- diag(Is) %*% covm %*% t(diag(Is))
     
+    n <- ncol(corm)
     names <- colnames(as.data.frame(corm))
     index <- as.character(1:n)
     colnames(corm) <- rownames(corm) <- index
