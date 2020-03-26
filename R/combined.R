@@ -1,12 +1,16 @@
 augment <- function(covm, buff = sqrt(.Machine$double.eps)){
-  corm <- sc(covm)[[1]]
+  Is <- sqrt(1/diag(covm))
+  corm <- diag(Is) %*% covm %*% t(diag(Is))
+  
   n <- ncol(corm)
   names <- colnames(as.data.frame(corm))
   index <- as.character(1:n)
   colnames(corm) <- rownames(corm) <- index
   perm <- sample(1:n)
   corm <- (corm[perm, ])[, perm]
+  
   B <- as.data.frame(t(chol(corm)))
+  
   B[n + 1, ] <- B[, n + 1] <- 0
   B[n + 1, 1] <- runif(1, -1, 1)
   for (j in 2:n) {
@@ -25,17 +29,22 @@ augment <- function(covm, buff = sqrt(.Machine$double.eps)){
                                                         1)] * B[j, 1:(j - 1)]))
   }
   B[n + 1, n + 1] <- sqrt(1 - sum(B[(n + 1), 1:n]^2))
+  
   out <- tcrossprod(as.matrix(B))
+  
   out <- out[match(c(index, n + 1), c(rownames(out), n + 1)), 
              match(c(index, n + 1), c(colnames(out), n + 1))]
   colnames(out)[1:n] <- rownames(out)[1:n] <- names
   colnames(out)[n + 1] <- "Augment"
-  usc(out,c(sc(covm)[[2]],1))
+  
+  Is <- sqrt(1/Is^2)
+  diag(Is) %*% out %*% t(diag(Is))
 }
 
-augmentcpp <- function(corm,buff=sqrt(.Machine$double.eps)){
-    corm <- sc(covm)[[1]]
-    n <- ncol(corm)
+augmentcpp <- function(covm,buff=sqrt(.Machine$double.eps)){
+    Is <- sqrt(1/diag(covm))
+    corm <- diag(Is) %*% covm %*% t(diag(Is))
+    
     names <- colnames(as.data.frame(corm))
     index <- as.character(1:n)
     colnames(corm) <- rownames(corm) <- index
@@ -55,7 +64,8 @@ augmentcpp <- function(corm,buff=sqrt(.Machine$double.eps)){
     out <- out[match(c(index,n+1),c(rownames(out),n+1)),match(c(index,n+1),c(colnames(out),n+1))]
     colnames(out)[1:n] <- rownames(out)[1:n] <- names
 
-    usc(out,c(sc(covm)[[2]],1))
+    Is <- sqrt(1/Is^2)
+    diag(Is) %*% out %*% t(diag(Is))
 }
 
 factory <- function(fun){
@@ -122,18 +132,6 @@ DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1){
   }
   colnames(out) <- names
   out
-}
-
-sc <- function(covm){
-  Is <- sqrt(1/diag(covm))
-  corm <- diag(Is) %*% covm %*% t(diag(Is))
-  list(corm,Is)
-}
-
-usc <- function(corm,Is){
-  Is <- sqrt(1/Is^2)
-  covm <- diag(Is) %*% corm %*% t(diag(Is))
-  covm
 }
 
 simfuncpp <- function(vcvm){
