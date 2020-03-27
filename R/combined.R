@@ -112,33 +112,48 @@ RandomCormCPP <- function(nvars,buff=sqrt(.Machine$double.eps)){
 
 DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1){
   
+  mod <- lalonde
+  nsims <- 1000
+  language="cpp"
+  n.cores=2
+  
   output <- list()
   mm <- model.matrix(mod)
   mod_mat <- as.matrix(data.frame(y=model.frame(mod)[,1],mm[,-1]))
   names <- c(colnames(mm)[-1],"ControlFunction","R_Squared")
   vcvm <- cov(mod_mat)
   
-  if(n.cores==1){
-    cl <- NULL
-  }else{
-    cl <- parallel::makeCluster(n.cores)
-    parallel::clusterEvalQ(cl,library(DOPE))
-    parallel::clusterExport(cl,"vcvm")
-  }
+  require(foreach)
+  require(doSNOW)
+  require(doParallel)
+  pb <- txtProgressBar(max = nsims, style = 3)
+  progress <- function(n) setTxtProgressBar(pb, n)
+  opts <- list(progress = progress)
   
-  if(language == "cpp"){
-    
-    pbapply::pbsapply(1:6,function(x)simfun(vcvm),cl=NULL)
-    out <- as.data.frame(t(pbapply::pbsapply(1:nsims,function(x)simfuncpp(vcvm),cl=cl)))
-    try(parallel::stopCluster(cl),silent=T)
-  }
+  cl <- parallel::makeCluster(n.cores)
+  parallel::clusterEvalQ(cl,library(DOPE))
+  parallel::clusterExport(cl,"vcvm",envir=environment())
+  registerDoSNOW(cl)
   
-  if(language == "R"){
-    out <- as.data.frame(t(pbapply::pbsapply(1:nsims,function(x)simfun(vcvm),cl=cl)))
-    try(parallel::stopCluster(cl),silent=T)
+  if(language=="cpp"){
+    out <- foreach(i=1:nsims,
+                   .combine=rbind,
+                   .options.snow = opts) %dopar% try(simfuncpp(vcvm))
   }
+  if(language=="R"){
+    out <- foreach(i=1:nsims,
+                   .combine=rbind,
+                   .options.snow = opts) %dopar% try(simfun(vcvm))
+  }
+  suppressWarnings(try(stopCluster(cl)))
+  
   colnames(out) <- names
-  out
+  
+  tmp <- apply(mod_mat,2,mean)
+  int <- sapply(1:nrow(out),function(x)
+    tmp[1] - tmp[2:ncol(mod_mat)] %*% as.matrix(out[x,1:(ncol(out)-2)])) 
+  
+  data.frame(Intercept = int,out)
 }
 
 simfuncpp <- function(vcvm){
@@ -158,7 +173,7 @@ simfuncpp <- function(vcvm){
                 zy <- as.matrix(aug[1,2:ncol(aug)])
                 betas <- solve(zz) %*% zy
                 rsq <- (t(zy) %*% solve(zz) %*% zy)/aug[1,1]
-                output <- c(t(betas),rsq)
+                output <- c(int,t(betas),rsq)
                 output
 }
 
