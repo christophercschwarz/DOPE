@@ -111,12 +111,7 @@ RandomCormCPP <- function(nvars,buff=sqrt(.Machine$double.eps)){
 }
 
 DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1){
-  
-  mod <- lalonde
-  nsims <- 1000
-  language="cpp"
-  n.cores=2
-  
+
   output <- list()
   mm <- model.matrix(mod)
   mod_mat <- as.matrix(data.frame(y=model.frame(mod)[,1],mm[,-1]))
@@ -173,7 +168,7 @@ simfuncpp <- function(vcvm){
                 zy <- as.matrix(aug[1,2:ncol(aug)])
                 betas <- solve(zz) %*% zy
                 rsq <- (t(zy) %*% solve(zz) %*% zy)/aug[1,1]
-                output <- c(int,t(betas),rsq)
+                output <- c(t(betas),rsq)
                 output
 }
 
