@@ -1,4 +1,5 @@
 augment <- function(covm, buff = sqrt(.Machine$double.eps)){
+
   Is <- sqrt(1/diag(covm))
   corm <- diag(Is) %*% covm %*% t(diag(Is))
   
@@ -37,11 +38,12 @@ augment <- function(covm, buff = sqrt(.Machine$double.eps)){
   colnames(out)[1:n] <- rownames(out)[1:n] <- names
   colnames(out)[n + 1] <- "Augment"
   
-  Is <- sqrt(1/Is^2)
+  Is <- c(sqrt(1/Is^2),1)
   diag(Is) %*% out %*% t(diag(Is))
 }
 
 augmentcpp <- function(covm,buff=sqrt(.Machine$double.eps)){
+  
     Is <- sqrt(1/diag(covm))
     corm <- diag(Is) %*% covm %*% t(diag(Is))
     
@@ -65,7 +67,7 @@ augmentcpp <- function(covm,buff=sqrt(.Machine$double.eps)){
     out <- out[match(c(index,n+1),c(rownames(out),n+1)),match(c(index,n+1),c(colnames(out),n+1))]
     colnames(out)[1:n] <- rownames(out)[1:n] <- names
 
-    Is <- sqrt(1/Is^2)
+    Is <- c(sqrt(1/Is^2),1)
     diag(Is) %*% out %*% t(diag(Is))
 }
 
@@ -109,6 +111,7 @@ RandomCormCPP <- function(nvars,buff=sqrt(.Machine$double.eps)){
 }
 
 DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1){
+  
   output <- list()
   mm <- model.matrix(mod)
   mod_mat <- as.matrix(data.frame(y=model.frame(mod)[,1],mm[,-1]))
@@ -120,16 +123,19 @@ DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1){
   }else{
     cl <- parallel::makeCluster(n.cores)
     parallel::clusterEvalQ(cl,library(DOPE))
+    parallel::clusterExport(cl,"vcvm")
   }
   
   if(language == "cpp"){
+    
+    pbapply::pbsapply(1:6,function(x)simfun(vcvm),cl=NULL)
     out <- as.data.frame(t(pbapply::pbsapply(1:nsims,function(x)simfuncpp(vcvm),cl=cl)))
-    parallel::stopCluster(cl)
+    try(parallel::stopCluster(cl),silent=T)
   }
   
   if(language == "R"){
     out <- as.data.frame(t(pbapply::pbsapply(1:nsims,function(x)simfun(vcvm),cl=cl)))
-    parallel::stopCluster(cl)
+    try(parallel::stopCluster(cl),silent=T)
   }
   colnames(out) <- names
   out
@@ -206,8 +212,8 @@ plot_DOPE <- function(output,vname,xmin=NULL,xmax=NULL,bw=0.2,shade=FALSE){
     col <- "black"
   }
   
-  lims <- c(ifelse(is.null(xmin),min(output[,vname]),xmin),
-            ifelse(is.null(xmax),max(output[,vname]),xmax))
+  lims <- c(ifelse(is.null(xmin),quantile(output[,vname],probs=0.01),xmin),
+            ifelse(is.null(xmax),quantile(output[,vname],probs=0.99),xmax))
   
   ggplot(output,aes(x=output[,vname],fill=fillz)) + 
     geom_histogram(binwidth=bw,color=col,show.legend = F,na.rm=T) +
@@ -221,39 +227,64 @@ plot_DOPE <- function(output,vname,xmin=NULL,xmax=NULL,bw=0.2,shade=FALSE){
              hjust=0,vjust=1)
 }
 
-
-
-noise_plot <- function(output,vname,adj=0.3){
+sensitivity_plot <- function(output,vname,adj=NULL){
+  
   rsqs <- seq(min(output$R_Squared) + 0.0001,1,length=50)
   
   ppos <- unlist(lapply(rsqs,function(x)nrow(
     output[which(output$R_Squared < x & output[,vname] > 0),])/nrow(
       output[which(output$R_Squared < x),])))
   
+  ppos2 <- unlist(lapply(rsqs,function(x)nrow(
+    output[which(output$R_Squared >= x & output[,vname] > 0),])/nrow(
+      output[which(output$R_Squared >= x),])))
+  
   sgn <- sign(median(output[,vname]))
   if(sgn < 0){
     ppos <- 1-ppos
+    ppos2 <- 1-ppos2
   }
+  
+  adj <- ifelse(is.null(adj),min(ppos2,na.rm=T)-0.75*(1-min(ppos2,na.rm=T)),adj)
+  
   infoloss <- unlist(lapply(rsqs,function(x)nrow(output[which(output$R_Squared < x),])))
   infoloss <- 1- infoloss/nrow(output)
+  ila1 <- infoloss*(1-adj)
+  ila1 <- ila1 / max(ila1,na.rm=T) * (min(ppos2,na.rm=T) - adj) + adj
   
-  tmp <- data.frame(rsqs,ppos,infoloss)
+  infoloss2 <- unlist(lapply(rsqs,function(x)nrow(output[which(output$R_Squared >= x),])))
+  infoloss2 <- 1- infoloss2/nrow(output)
+  ila2 <- infoloss2*(1-adj)
+  ila2 <- ila2 / max(ila2,na.rm=T) * (min(ppos2,na.rm=T) - adj) + adj
+  
+  
+  tmp <- data.frame(rsqs,ppos,ila1,ila2)
+  
   tmp %>% ggplot(aes(x=rsqs,y=ppos)) +
+    annotate(geom = "rect", xmin = min(rsqs,na.rm=T), xmax = max(rsqs,na.rm=T), ymin = adj, ymax = min(ppos2,na.rm=T),
+             fill = "grey", colour = "white", alpha = 0.5) +
     theme_bw() +
-    geom_hline(aes(yintercept = min(ppos),color="Maximal Uncertainty"),linetype="dashed") +
-    scale_y_continuous(name="Proportion Same Sign as Naive",limits = c(adj,1),
-                       sec.axis=sec_axis(~ (.-adj)/(1-adj),
-                                         name="Proportion Draws Rejected")) +
+    geom_hline(aes(yintercept = min(ppos,na.rm=T),color="Ignorance"),linetype="dashed") +
+    geom_hline(aes(yintercept = min(ppos2,na.rm=T),color="Pessimism"),linetype="dotdash") +
+    scale_y_continuous(name="Proportion Same Sign as Naive",limits = c(adj,max(ppos,na.rm=T)),
+                       sec.axis=sec_axis(~ (.-adj)/(min(ppos2,na.rm=T)-adj),
+                                         name="Draws Rejected",
+                                         breaks=c(0,0.25,0.5,0.75,1))) +
+    theme(axis.title.y.right = element_text(hjust = 1)) +
     xlab("Maximum R Squared") +
-    geom_point(aes(color="Proportion Same Sign")) +
-    geom_point(aes(y=infoloss/(1/(1-adj))+adj,color="Draws Rejected"),shape=1) +
-    scale_color_manual(name="",values=c("black","black","black"),
-                       labels=c("Maximal Uncertainty","Proportion Same Sign","Draws Rejected"),
+    geom_point(aes(color="Proportion Same Sign 1")) +
+    geom_point(aes(y=ppos2,color="Proportion Same Sign 2"),shape=10,na.rm=T) +
+    geom_point(aes(y=ila1,color="Draws Rejected (Ig)"),shape=1) +
+    geom_point(aes(y=ila2,color="Draws Rejected (Ps)"),shape=18) +
+    scale_color_manual(name="",values=c("black","black","black","black","black","black"),
+                       labels=c(paste0("Ignorance: ",round(min(ppos,na.rm=T),3)),
+                                paste0("Pessimism: ",round(min(ppos2,na.rm=T),3)),
+                                "Upper Thresholding",
+                                "Lower thresholding",
+                                "Draws Rejected (UT)",
+                                "Draws Rejected (LT)"),
                        guide="legend") +
-    guides(colour = guide_legend(override.aes = list(linetype=c(2,0,0),
-                                                     shape=c(NA,19,1)))) +
-    theme(legend.justification = c(0,0),legend.position = c(0,0),
-          legend.background = element_blank(), legend.title = element_blank(),
-          legend.box.background = element_rect(colour = "black"))
+    guides(colour = guide_legend(override.aes = list(linetype=c(2,5,0,0,0,0),
+                                                     shape=c(NA,NA,19,10,1,18)))) +
+    theme(legend.position = "bottom")
 }
-
