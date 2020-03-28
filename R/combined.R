@@ -110,8 +110,8 @@ RandomCormCPP <- function(nvars,buff=sqrt(.Machine$double.eps)){
 	base
 }
 
-DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1){
-
+DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1,buff=sqrt(.Machine$double.eps)){
+  
   output <- list()
   mm <- model.matrix(mod)
   mod_mat <- as.matrix(data.frame(y=model.frame(mod)[,1],mm[,-1]))
@@ -133,12 +133,12 @@ DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1){
   if(language=="cpp"){
     out <- foreach(i=1:nsims,
                    .combine=rbind,
-                   .options.snow = opts) %dopar% try(simfuncpp(vcvm))
+                   .options.snow = opts) %dopar% try(simfuncpp(vcvm,buff))
   }
   if(language=="R"){
     out <- foreach(i=1:nsims,
                    .combine=rbind,
-                   .options.snow = opts) %dopar% try(simfun(vcvm))
+                   .options.snow = opts) %dopar% try(simfun(vcvm,buff))
   }
   suppressWarnings(try(stopCluster(cl)))
   
@@ -151,7 +151,7 @@ DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1){
   data.frame(Intercept = int,out)
 }
 
-simfuncpp <- function(vcvm){
+simfuncpp <- function(vcvm,buff=sqrt(.Machine$double.eps)){
                 psd <- FALSE
                 attempts <- 0
                 while(psd == FALSE){
@@ -160,7 +160,7 @@ simfuncpp <- function(vcvm){
                     print("Ill Conditioned System")
                     break
                   }
-                  aug <- augmentcpp(vcvm,buff=0.01)
+                  aug <- augmentcpp(vcvm,buff)
                   psd <- !any(eigen(aug)$values < 1e-8)
                 }
                 
@@ -172,7 +172,7 @@ simfuncpp <- function(vcvm){
                 output
 }
 
-simfun <- function(vcvm){
+simfun <- function(vcvm,buff=sqrt(.Machine$double.eps)){
                 psd <- FALSE
                 attempts <- 0
                 while(psd == FALSE){
@@ -181,7 +181,7 @@ simfun <- function(vcvm){
                     print("Ill Conditioned System")
                     break
                   }
-                  aug <- augment(vcvm,buff=0.01)
+                  aug <- augment(vcvm,buff)
                   psd <- !any(eigen(aug)$values < 1e-8)
                 }
                 zz <- aug[-1,-1]
