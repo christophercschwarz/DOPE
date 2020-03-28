@@ -209,23 +209,27 @@ stats <- function(coefs){
 }
 
 
-plot_DOPE <- function(output,vname,xmin=NULL,xmax=NULL,bw=0.2,shade=FALSE){
+plot_DOPE <- function(output,vname,xmin=NULL,xmax=NULL,bw=NULL,shade=FALSE){
+  
+  lims <- c(ifelse(is.null(xmin),quantile(output[,vname],probs=0.02),xmin),
+            ifelse(is.null(xmax),quantile(output[,vname],probs=0.98),xmax))
+  
+  bw <- ifelse(is.null(bw),abs(range(lims))/50,bw)
+    
+  tmp <- output[which(output[,vname] >= lims[1] & output[,vname] <= lims[2]),]
   
   if(shade){
-    g <- ggplot(output,aes(x=output[,vname])) + 
+    g <- ggplot(tmp,aes(x=tmp[,vname])) + 
       geom_histogram(binwidth=bw, color="black",na.rm=T)
     ncuts <- nrow(ggplot_build(g)$data[[1]])
-    output$fillz <- cut(output$R_Squared,ncuts)
+    tmp$fillz <- cut(tmp$R_Squared,ncuts)
     col = NA
   }else{
     fillz <- "grey35"
     col <- "black"
   }
   
-  lims <- c(ifelse(is.null(xmin),quantile(output[,vname],probs=0.01),xmin),
-            ifelse(is.null(xmax),quantile(output[,vname],probs=0.99),xmax))
-  
-  ggplot(output,aes(x=output[,vname],fill=fillz)) + 
+  ggplot(tmp,aes(x=tmp[,vname],fill=fillz)) + 
     geom_histogram(binwidth=bw,color=col,show.legend = F,na.rm=T) +
     scale_fill_grey() +
     theme_bw() +

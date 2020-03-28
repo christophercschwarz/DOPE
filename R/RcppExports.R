@@ -5,8 +5,8 @@ vecmult <- function(x, y) {
     .Call(`_DOPE_vecmult`, x, y)
 }
 
-subset <- function(x, row, column_min, column_max) {
-    .Call(`_DOPE_subset`, x, row, column_min, column_max)
+subst <- function(x, row, column_min, column_max) {
+    .Call(`_DOPE_subst`, x, row, column_min, column_max)
 }
 
 matprod <- function(x) {

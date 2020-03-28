@@ -18,9 +18,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// subset
-arma::mat subset(arma::mat x, int row, int column_min, int column_max);
-RcppExport SEXP _DOPE_subset(SEXP xSEXP, SEXP rowSEXP, SEXP column_minSEXP, SEXP column_maxSEXP) {
+// subst
+arma::mat subst(arma::mat x, int row, int column_min, int column_max);
+RcppExport SEXP _DOPE_subst(SEXP xSEXP, SEXP rowSEXP, SEXP column_minSEXP, SEXP column_maxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -28,7 +28,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type row(rowSEXP);
     Rcpp::traits::input_parameter< int >::type column_min(column_minSEXP);
     Rcpp::traits::input_parameter< int >::type column_max(column_maxSEXP);
-    rcpp_result_gen = Rcpp::wrap(subset(x, row, column_min, column_max));
+    rcpp_result_gen = Rcpp::wrap(subst(x, row, column_min, column_max));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -59,7 +59,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_DOPE_vecmult", (DL_FUNC) &_DOPE_vecmult, 2},
-    {"_DOPE_subset", (DL_FUNC) &_DOPE_subset, 4},
+    {"_DOPE_subst", (DL_FUNC) &_DOPE_subst, 4},
     {"_DOPE_matprod", (DL_FUNC) &_DOPE_matprod, 1},
     {"_DOPE_augment_loop", (DL_FUNC) &_DOPE_augment_loop, 3},
     {NULL, NULL, 0}

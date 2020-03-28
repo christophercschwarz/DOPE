@@ -11,7 +11,7 @@ arma::mat vecmult (arma::mat x, arma::mat y) {
 }
 
 // [[Rcpp::export()]]
-arma::mat subset (arma::mat x, int row, int column_min, int column_max) {
+arma::mat subst (arma::mat x, int row, int column_min, int column_max) {
   arma::mat submat = x.row(row-1);
   NumericVector out(column_max-column_min+1);
   for(int j = (column_min-1); j < column_max; j++){
@@ -35,7 +35,7 @@ arma::mat augment_loop (arma::mat x, int n, double buff) {
     B_up(n,n) = 0;
     arma::mat B_lo = x;
     B_lo(n,n) = 0;
-    arma::mat cholrow = subset(x,rn,1,j);
+    arma::mat cholrow = subst(x,rn,1,j);
     double sumsq = std::inner_product(cholrow.begin(),cholrow.end(),cholrow.begin(),0.0);
     B_up(n,j) = sqrt(1-sumsq);
     B_lo(n,j) = -sqrt(1-sumsq);
@@ -49,10 +49,10 @@ arma::mat augment_loop (arma::mat x, int n, double buff) {
         cor = (upper + lower)/2;
     if (diff > 0)
         cor = R::runif(lower,upper);
-    arma::vec vect = subset(x,j+1,1,j);
+    arma::vec vect = subst(x,j+1,1,j);
     arma::mat tmp = vecmult(cholrow,vect);
     x(n,j) = 1/x(j,j) * (cor - accu(tmp));
-    arma::mat cholrow2 = subset(x,rn,1,n);
+    arma::mat cholrow2 = subst(x,rn,1,n);
     double sumsq2 = std::inner_product(cholrow2.begin(),cholrow2.end(),cholrow2.begin(),0.0);
     x(n,n) = sqrt(1 - sumsq2);
   }
