@@ -224,8 +224,14 @@ stats <- function(coefs){
 
 plot_DOPE <- function(output,vname,xmin=NULL,xmax=NULL,bw=NULL,shade=FALSE,include_naive = TRUE){
   
-  old <- output[which(is.na(output$ControlFunction)),]
-  output <- output[-which(is.na(output$ControlFunction)),]
+  cond <- which(is.na(output$ControlFunction))
+  if(length(cond)==0){
+    include_naive <- FALSE
+  }
+  if(include_naive){
+    old <- output[cond,]
+    output <- output[-cond,]  
+  }
   
   lims <- c(ifelse(is.null(xmin),quantile(output[,vname],probs=0.02),xmin),
             ifelse(is.null(xmax),quantile(output[,vname],probs=0.98),xmax))
@@ -264,8 +270,13 @@ plot_DOPE <- function(output,vname,xmin=NULL,xmax=NULL,bw=NULL,shade=FALSE,inclu
 
 sensitivity_plot <- function(output,vname,adj=NULL){
   
-  old <- output[which(is.na(output$ControlFunction)),]
-  output <- output[-which(is.na(output$ControlFunction)),]
+  cond <- which(is.na(output$ControlFunction))
+  if(length(cond)!=0){
+    old <- output[cond,]
+    output <- output[-cond,]  
+  }else{
+    old <- output[0,]
+  }
   
   rsqs <- seq(min(output$R_Squared) + 0.0001,1,length=50)
   
@@ -294,7 +305,6 @@ sensitivity_plot <- function(output,vname,adj=NULL){
   infoloss2 <- 1- infoloss2/nrow(output)
   ila2 <- infoloss2*(1-adj)
   ila2 <- ila2 / max(ila2,na.rm=T) * (min(ppos2,na.rm=T) - adj) + adj
-  
   
   tmp <- data.frame(rsqs,ppos,ila1,ila2)
   
