@@ -114,8 +114,11 @@ DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1,buff=sqrt(.Machine$dou
   
   output <- list()
   mm <- model.matrix(mod)
-  mod_mat <- as.matrix(data.frame(y=model.frame(mod)[,1],mm[,-1]))
-  names <- c(colnames(mm)[-1],"ControlFunction","R_Squared")
+  mmn <- colnames(mm)
+  g <- grep("(Intercept)",mmn,fixed=T)
+  
+  mod_mat <- as.matrix(data.frame(y=model.frame(mod)[,1],if(length(g)==0){mm}else{mm[,-g]}))
+  names <- c(if(length(g)==0){mmn}else{mmn[-g]},"ControlFunction","R_Squared")
   vcvm <- cov(mod_mat)
   
   require(foreach)
@@ -144,11 +147,21 @@ DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1,buff=sqrt(.Machine$dou
   
   colnames(out) <- names
   
-  tmp <- apply(mod_mat,2,mean)
-  int <- sapply(1:nrow(out),function(x)
-    tmp[1] - tmp[2:ncol(mod_mat)] %*% as.matrix(out[x,1:(ncol(out)-2)])) 
+  if(length(g)!=0){
+    tmp <- apply(mod_mat,2,mean)
+    int <- sapply(1:nrow(out),function(x)
+      tmp[1] - tmp[2:ncol(mod_mat)] %*% as.matrix(out[x,1:(ncol(out)-2)])) 
+    out <- data.frame(Intercept = int,out)
+  }else{
+    out <- data.frame(out)
+  }
   
-  data.frame(Intercept = int,out)
+  old <- c(coef(mod)[1],coef(mod)[-1],NA,summary(mod)$r.squared)
+  
+  out[(nrow(out)+1),] <- old
+  rownames(out)[nrow(out)] <- "Naive"
+  
+  out
 }
 
 simfuncpp <- function(vcvm,buff=sqrt(.Machine$double.eps)){
@@ -209,7 +222,10 @@ stats <- function(coefs){
 }
 
 
-plot_DOPE <- function(output,vname,xmin=NULL,xmax=NULL,bw=NULL,shade=FALSE){
+plot_DOPE <- function(output,vname,xmin=NULL,xmax=NULL,bw=NULL,shade=FALSE,include_naive = TRUE){
+  
+  old <- output[which(is.na(output$ControlFunction)),]
+  output <- output[-which(is.na(output$ControlFunction)),]
   
   lims <- c(ifelse(is.null(xmin),quantile(output[,vname],probs=0.02),xmin),
             ifelse(is.null(xmax),quantile(output[,vname],probs=0.98),xmax))
@@ -238,10 +254,18 @@ plot_DOPE <- function(output,vname,xmin=NULL,xmax=NULL,bw=NULL,shade=FALSE){
     ylab("Frequency") + 
     annotate("table",-Inf,Inf,
              label=list(stats(output[,vname])),
-             hjust=0,vjust=1)
+             hjust=0,vjust=1) -> p1
+  if(include_naive){
+    p1 + geom_vline(xintercept = old[,vname],color="red",size=1.25)
+  }else{
+    p1
+  }
 }
 
 sensitivity_plot <- function(output,vname,adj=NULL){
+  
+  old <- output[which(is.na(output$ControlFunction)),]
+  output <- output[-which(is.na(output$ControlFunction)),]
   
   rsqs <- seq(min(output$R_Squared) + 0.0001,1,length=50)
   
@@ -253,7 +277,7 @@ sensitivity_plot <- function(output,vname,adj=NULL){
     output[which(output$R_Squared >= x & output[,vname] > 0),])/nrow(
       output[which(output$R_Squared >= x),])))
   
-  sgn <- sign(median(output[,vname]))
+  sgn <- ifelse(nrow(old)==0,sign(median(output[,vname])),sign(old[,vname]))
   if(sgn < 0){
     ppos <- 1-ppos
     ppos2 <- 1-ppos2
@@ -301,4 +325,24 @@ sensitivity_plot <- function(output,vname,adj=NULL){
     guides(colour = guide_legend(override.aes = list(linetype=c(2,5,0,0,0,0),
                                                      shape=c(NA,NA,19,10,1,18)))) +
     theme(legend.position = "bottom")
+}
+
+DOPE_irls <- function(X, y, family=binomial(link="logit"), maxit=25, tol=1e-08){
+  X <- as.matrix(data.frame(Intercept = 1,X))
+  b = rep(0,ncol(X))
+  for(j in 1:maxit){
+    eta    = X %*% b
+    g      = family$linkinv(eta)
+    gprime = family$mu.eta(eta)
+    z      = eta + (y - g) / gprime
+    W      = as.vector(gprime^2 / family$variance(g))
+    bold   = b
+    b      = solve(crossprod(X,W*X), crossprod(X,W*z), tol=2*.Machine$double.eps)
+    if(sqrt(crossprod(b-bold)) < tol) break
+  }
+  tz <- solve(chol(solve(diag(W)))) %*% z
+  tx <- solve(chol(solve(diag(W)))) %*% X
+  mod <- lm(tz~.-1,data=as.data.frame(tx))
+  
+  list(model = mod, iterations = j, working_variable = z, weights = W)
 }
