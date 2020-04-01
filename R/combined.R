@@ -165,6 +165,7 @@ DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1,buff=sqrt(.Machine$dou
 }
 
 simfuncpp <- function(vcvm,buff=sqrt(.Machine$double.eps)){
+  
                 psd <- FALSE
                 attempts <- 0
                 while(psd == FALSE){
@@ -174,7 +175,7 @@ simfuncpp <- function(vcvm,buff=sqrt(.Machine$double.eps)){
                     break
                   }
                   aug <- augmentcpp(vcvm,buff)
-                  psd <- !any(eigen(aug)$values < 1e-8)
+                  psd <- !class(try(solve(aug[-1,-1]))) == "try-error"
                 }
                 
                 zz <- aug[-1,-1]
@@ -195,7 +196,7 @@ simfun <- function(vcvm,buff=sqrt(.Machine$double.eps)){
                     break
                   }
                   aug <- augment(vcvm,buff)
-                  psd <- !any(eigen(aug)$values < 1e-8)
+                  psd <- !class(try(solve(aug[-1,-1]))) == "try-error"
                 }
                 zz <- aug[-1,-1]
                 zy <- as.matrix(aug[1,2:ncol(aug)])
@@ -338,6 +339,7 @@ sensitivity_plot <- function(output,vname,adj=NULL){
 }
 
 DOPE_irls <- function(X, y, family=binomial(link="logit"), maxit=25, tol=1e-08){
+  y <- as.matrix(y)
   X <- as.matrix(data.frame(Intercept = 1,X))
   b = rep(0,ncol(X))
   for(j in 1:maxit){
