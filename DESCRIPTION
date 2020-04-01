@@ -7,6 +7,6 @@ Author: Christopher Schwarz
 Maintainer: Christopher Schwarz <cschwarz@nyu.edu>
 Description: Functions for generating, plotting, and describing distributions of possible effects for agnostic sensitivity analysis.
 License: GPL-2
-Depends: doSNOW, doParallel, foreach, ggplot2, ggpmisc, grid, gridExtra, gridtext
+Depends: doSNOW, doParallel, foreach, ggplot2, ggpmisc, grid, gridExtra, gridtext, magrittr
 Imports: Rcpp (>= 0.12.17)
 LinkingTo: Rcpp, RcppArmadillo
