@@ -121,9 +121,6 @@ DOPE <- function(mod,nsims=10000,language="cpp",n.cores=1,buff=sqrt(.Machine$dou
   names <- c(if(length(g)==0){mmn}else{mmn[-g]},"ControlFunction","R_Squared")
   vcvm <- cov(mod_mat)
   
-  require(foreach)
-  require(doSNOW)
-  require(doParallel)
   pb <- txtProgressBar(max = nsims, style = 3)
   progress <- function(n) setTxtProgressBar(pb, n)
   opts <- list(progress = progress)
