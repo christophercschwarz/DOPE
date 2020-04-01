@@ -1,6 +1,6 @@
 ---
 title: "Distributions of Possible Effects"
-output: github_document
+output: rmarkdown::github_document
 ---
 
 ### Why should I use it?
