@@ -3,10 +3,10 @@
 \alias{DOPE-package}
 \docType{package}
 \title{
-\packageTitle{Distributions of Possible Effects}
+\packageTitle{DOPE}
 }
 \description{
-\packageDescription{Computational and graphical tools for sensitivity analysis with distibutions of possible effects}
+\packageDescription{DOPE}
 }
 \details{
 
@@ -16,9 +16,9 @@ The DESCRIPTION file:
 
 }
 \author{
-\packageAuthor{Christopher Schwarz}
+\packageAuthor{DOPE}
 
-Maintainer: \packageMaintainer{Christopher Schwarz}
+Maintainer: \packageMaintainer{DOPE}
 }
 \references{
  See \href{https://github.com/christophercschwarz/DOPE}{the GitHub page} for references. 
