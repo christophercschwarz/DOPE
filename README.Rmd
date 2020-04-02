@@ -11,7 +11,11 @@ knitr::opts_chunk$set(collapse=TRUE, comment="##", fig.retina=2, fig.path = "REA
 
 ### Why should I use it?
 
-The threat of endogeneity is ubiquitous within applied empirical research.  Regressor-error dependencies are a common inferential concern not in the least because they may arise from any combination of omitted variable, systematic measurement errors, self selection, systematic missing data, reciprocal causation, or interference between units.  Conventional statistical methods do not reflect any source of uncertainty other than random error and so do not express these additional doubts.  The package impliments a "near Bayesian" method of sensitivity analysis which samples uniformly from the set of valid control functions under ignorance to build a distribution of possible causal effects.  The package provides graphical tools for assessing the sensitivity of one's results to the threat of hidden biases.
+The threat of endogeneity is ubiquitous within applied empirical research.  Regressor-error dependencies are a common inferential concern not in the least because they may arise from any combination of omitted variable, systematic measurement errors, self selection, systematic missing data, reciprocal causation, or interference between units.  Conventional statistical methods do not reflect any source of uncertainty other than random error and so do not express these additional doubts.  The package impliments a "near Bayesian" method of sensitivity analysis which samples uniformly from the set of valid control functions under ignorance to build a distribution of possible causal effects.  It also provides graphical tools for assessing the sensitivity of one's results to the threat of hidden biases.
+
+### What does it do?
+
+
 
 ### How do I get it?
 
@@ -53,7 +57,7 @@ mod <- lm(y ~ ., data=dat)
 Since we have control over the process by which the data was generated we know that the model is correct and that the coefficients are unbiased/consistent estimates of the treatment effect of interest.  Suppose, however, that we did not.  We can take draws from the set of valid control functions to build out a distribution of possible effects reflecting ignorance of the regressor-error dependency plaguing our analysis.  The number of draws can be set with `nsims` and the number of cores for parallel computation with `n.cores`.
 
 ```{r results=FALSE}
-dope <- DOPE(mod, nsims = 3000, n.cores = parallel::detectCores())
+dope <- DOPE(mod, nsims = 5000, n.cores = parallel::detectCores())
 ```
 
 The result is a dataframe of `nsims` + 1 observations with columns for each of the estimated coefficients, the control function coefficient, and model R-squared.  The last observation simply re-states the results from the naive model for use in plotting functions.  The most basic plot shows the simulated distribution of possible effects and gives a number of useful summaries.  Because these are `ggplot` objects, that can be easily modified by adding additional layers.
@@ -62,7 +66,7 @@ The result is a dataframe of `nsims` + 1 observations with columns for each of t
 plot_DOPE(dope,"V2") + ggtitle("Distribution of Possible Effects: V2")
 ```
 
-In this example, based upon 3000 draws 84.23% of the estimated effects are greater than zero with a 95% credible interval of -4.58 to 9.13.  The naive estimate is indicated in red.  Because these quantities are generated from random draws it is always a good idea to set a seed, although they stabalize with a larger amount of random draws.
+In this example, based upon 5000 draws 84.38% of the estimated effects are greater than zero with a 95% credible interval of -5.45 to 9.83.  The naive estimate is indicated in red.  Since the distribution is simulated setting a seed and using a large number of draws is highly recommended.
 
 We can get a little bit more information from the plot by shading based upon the R-squared from each regression and turning off the naive result.
 
@@ -85,7 +89,9 @@ library(wesanderson)
 
 p <- plot_DOPE(dope,"V2",shade=T,include_naive = F) + ggtitle("Distribution of Possible Effects: V2") 
 
-st <- try(ggsave("not_actually_output.pdf",p + scale_fill_manual(values = "black")),silent=T)
+file <- tempfile()
+st <- try(ggsave(file,device="pdf",p + scale_fill_manual(values = "black")),silent=T)
+unlink(file)
 n_fills <- as.numeric(regmatches(st,gregexpr("[[:digit:]]+",st))[[1]][1])
 
 p + scale_fill_manual(values=colorRampPalette(wes_palette("Zissou1"))(n_fills))
@@ -101,4 +107,5 @@ require(magrittr)
 sensitivity_plot(dope,"V2")
 ```
 
-The solid dots indicate how the certainty in the effect changes as you say "the world is not that deterministic," reducing the maximum allowable R-squared.  This reduces uncertainty relative to ignornace, indicated by the dashed line, at the cost of restrictiveness, indicated by the hollow points.  In the other direction, one might say that "the world is more deterministic than reflected in my model."  This is represented by the crossed points and increases uncertainty until the lower pessimistic bound on effect certainty.  The proportion of draws rejected by this lower thresholding is given by the filled diamonds.
+The solid dots indicate how the certainty in the effect changes as you say "the world is not that deterministic," reducing the maximum allowable R-squared.  This reduces uncertainty relative to ignornace, indicated by the dashed line, at the cost of restrictiveness, indicated by the hollow points.  In the other direction, one might say that "the world is more deterministic than reflected in my model."  This is represented by the crossed points and increases uncertainty until the lower pessimistic bound on effect certainty.  The proportion of draws rejected by this lower thresholding is given by the filled diamonds.  
+
