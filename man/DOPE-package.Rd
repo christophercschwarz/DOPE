@@ -1,36 +1,34 @@
 \name{DOPE-package}
 \alias{DOPE-package}
-\alias{DOPE}
+\alias{DOPE-package}
 \docType{package}
 \title{
-\packageTitle{DOPE}
+\packageTitle{Distributions of Possible Effects}
 }
 \description{
-\packageDescription{DOPE}
+\packageDescription{Computational and graphical tools for sensitivity analysis with distibutions of possible effects}
 }
 \details{
 
 The DESCRIPTION file:
 \packageDESCRIPTION{DOPE}
 \packageIndices{DOPE}
- An overview of how to use the package, including the most important 
- functions 
+
 }
 \author{
-\packageAuthor{DOPE}
+\packageAuthor{Christopher Schwarz}
 
-Maintainer: \packageMaintainer{DOPE}
+Maintainer: \packageMaintainer{Christopher Schwarz}
 }
 \references{
- Literature or other references for background information 
+ See \href{https://github.com/christophercschwarz/DOPE}{the GitHub page} for references. 
 }
 
 \keyword{ package }
 \seealso{
- Optional links to other man pages, e.g. 
- \code{\link[<pkg>:<pkg>-package]{<pkg>}} 
-}
-\examples{
-ex <- RandomCorm(5)
-ex1 <- augment(ex)
+ Primary Functions:
+ \code{\link[DOPE]{DOPE}}
+ \code{\link[DOPE]{RandomCorm}}
+ \code{\link[DOPE]{plot_DOPE}}
+ \code{\link[DOPE]{sensitivity_plot}}
 }
