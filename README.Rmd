@@ -40,7 +40,7 @@ which contains coefficients carrying a causal interpretation.
 
 So what we will do is sample uniformly from the set of valid control functions to build out the distribution of causal effects given our ignorance.  An algorithm to generate one such randomly drawn control function is the following:
 
-![](C:\Users\Schwarz\Desktop\algorithm.PNG)
+<a href="https://imgbb.com/"><img src="https://i.ibb.co/Wng5xrm/algorithm.png" alt="algorithm" border="0"></a>
 
 This algorithm effectively repeatedly uses the Cholesky decomposition to build up a valid augmented covariance matrix from which quantities of interest can be calculated.
 

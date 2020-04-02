@@ -93,7 +93,7 @@ functions to build out the distribution of causal effects given our
 ignorance. An algorithm to generate one such randomly drawn control
 function is the following:
 
-![](C:\\Users\\Schwarz\\Desktop\\algorithm.PNG)
+<a href="https://imgbb.com/"><img src="https://i.ibb.co/Wng5xrm/algorithm.png" alt="algorithm" border="0"></a>
 
 This algorithm effectively repeatedly uses the Cholesky decomposition to
 build up a valid augmented covariance matrix from which quantities of
@@ -154,6 +154,19 @@ version of the package with the following lines of code:
 Sys.setenv("R_REMOTES_NO_ERRORS_FROM_WARNINGS"=TRUE)
 devtools::install_github("christophercschwarz/DOPE",
                          dependencies=TRUE)
+## 
+##       v  checking for file 'C:\Users\Schwarz\AppData\Local\Temp\RtmpkPzhAt\remotes372421a53fac\christophercschwarz-DOPE-cdbc234/DESCRIPTION'
+##       -  preparing 'DOPE':
+##    checking DESCRIPTION meta-information ...     checking DESCRIPTION meta-information ...   v  checking DESCRIPTION meta-information
+## -  cleaning src
+##       -  installing the package to process help pages
+##       -  saving partial Rd database (13.5s)
+##       -  cleaning src
+##       -  checking for LF line-endings in source and make files and shell scripts
+##       -  checking for empty or unneeded directories
+##       -  building 'DOPE_1.1.0.tar.gz'
+##      
+## 
 library(DOPE)
 ```
 
