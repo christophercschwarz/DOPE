@@ -36,10 +36,14 @@ effect of some treatment(s)
 intercept in the design matrix we can use the common linear
 specification
 
+<center>
+
   
 ![\\mathbf{Y} = \\mathbf{X\\beta} +
 \\mathbf{\\epsilon^\*}](https://latex.codecogs.com/png.latex?%5Cmathbf%7BY%7D%20%3D%20%5Cmathbf%7BX%5Cbeta%7D%20%2B%20%5Cmathbf%7B%5Cepsilon%5E%2A%7D
 "\\mathbf{Y} = \\mathbf{X\\beta} + \\mathbf{\\epsilon^*}")  
+
+</center>
 
 where
 ![\\mathbf{\\epsilon^\*}](https://latex.codecogs.com/png.latex?%5Cmathbf%7B%5Cepsilon%5E%2A%7D
@@ -49,6 +53,8 @@ ATE. Regardless of the source, regressor-error dependencies manifest
 such that
 E![(\\mathbf{\\epsilon^\*}|\\mathbf{X})=0](https://latex.codecogs.com/png.latex?%28%5Cmathbf%7B%5Cepsilon%5E%2A%7D%7C%5Cmathbf%7BX%7D%29%3D0
 "(\\mathbf{\\epsilon^*}|\\mathbf{X})=0") and so
+
+<center>
 
   
 ![\\begin{align\*}
@@ -63,12 +69,14 @@ E![(\\mathbf{\\epsilon^\*}|\\mathbf{X})=0](https://latex.codecogs.com/png.latex?
     &= \\mathbf{\\beta} + (\\mathbf{X}^T\\mathbf{X})^{-1}\\mathbf{X}^T\\mathbf{\\epsilon^*} \\neq \\beta
 \\end{align*}")  
 
+</center>
+
 The basic idea of a control function is to construct, usually using
 instrumental variables, some
 ![\\mathbf{V}](https://latex.codecogs.com/png.latex?%5Cmathbf%7BV%7D
 "\\mathbf{V}") for which
-E![(\\mathbf{\\epsilon^\*}|\\mathbf{X},\\mathbf{V})=0](https://latex.codecogs.com/png.latex?%28%5Cmathbf%7B%5Cepsilon%5E%2A%7D%7C%5Cmathbf%7BX%7D%2C%5Cmathbf%7BV%7D%29%3D0
-"(\\mathbf{\\epsilon^*}|\\mathbf{X},\\mathbf{V})=0") and include that
+![E(\\mathbf{\\epsilon^\*}|\\mathbf{X},\\mathbf{V})=0](https://latex.codecogs.com/png.latex?E%28%5Cmathbf%7B%5Cepsilon%5E%2A%7D%7C%5Cmathbf%7BX%7D%2C%5Cmathbf%7BV%7D%29%3D0
+"E(\\mathbf{\\epsilon^*}|\\mathbf{X},\\mathbf{V})=0") and include that
 term as a regressor to purge the dependency. We are usually in the
 position where no such control function can be constructed. Regardless,
 we know that with the correct control function the regression of
@@ -76,6 +84,8 @@ we know that with the correct control function the regression of
 "\\mathbf{Y}") on
 ![\\mathbf{Z}=(\\mathbf{X},\\mathbf{V})](https://latex.codecogs.com/png.latex?%5Cmathbf%7BZ%7D%3D%28%5Cmathbf%7BX%7D%2C%5Cmathbf%7BV%7D%29
 "\\mathbf{Z}=(\\mathbf{X},\\mathbf{V})") yields coefficients
+
+<center>
 
   
 ![\\begin{align\*}
@@ -86,6 +96,8 @@ we know that with the correct control function the regression of
     \\hat{\\mathbf{\\beta}} &= (\\mathbf{Z}^T\\mathbf{Z})^{-1}\\mathbf{Z}^T\\mathbf{Y}
 \\end{align*}")  
 
+</center>
+
 which contains coefficients carrying a causal interpretation.
 
 So what we will do is sample uniformly from the set of valid control
@@ -93,7 +105,11 @@ functions to build out the distribution of causal effects given our
 ignorance. An algorithm to generate one such randomly drawn control
 function is the following:
 
+<center>
+
 <a href="https://imgbb.com/"><img src="https://i.ibb.co/Wng5xrm/algorithm.png" alt="algorithm" border="0"></a>
+
+</center>
 
 This algorithm effectively repeatedly uses the Cholesky decomposition to
 build up a valid augmented covariance matrix from which quantities of
@@ -101,6 +117,8 @@ interest can be calculated.
 
 To apply this to regression, note that we may rearrange the augmented
 covariance matrix as
+
+<center>
 
   
 ![\\Sigma^\* &= \\begin{bmatrix}
@@ -112,6 +130,8 @@ covariance matrix as
                 \\mathbf{K}_{\\Tilde{\\mathbf{Z}}\\Tilde{\\mathbf{Z}}} & \\mathbf{K}_{\\Tilde{\\mathbf{Z}}\\mathbf{Y}}\\\\ 
                 \\mathbf{K}_{\\mathbf{Y}\\Tilde{\\mathbf{Z}}} & \\mathbf{K_{YY}}
 \\end{bmatrix}")  
+
+</center>
 
 with ![\\tilde{\\mathbf{Z}} =
 (\\mathbf{X},\\tilde{\\mathbf{V}})](https://latex.codecogs.com/png.latex?%5Ctilde%7B%5Cmathbf%7BZ%7D%7D%20%3D%20%28%5Cmathbf%7BX%7D%2C%5Ctilde%7B%5Cmathbf%7BV%7D%7D%29
@@ -126,20 +146,28 @@ Algorithm 1. The coefficients from the regression of
 ![\\tilde{\\mathbf{V}}](https://latex.codecogs.com/png.latex?%5Ctilde%7B%5Cmathbf%7BV%7D%7D
 "\\tilde{\\mathbf{V}}") are given by
 
+<center>
+
   
 ![\\tilde{\\mathbf{\\beta}} =
 \\mathbf{K}^{-1}\_{\\tilde{\\mathbf{Z}}\\tilde{\\mathbf{Z}}}\\mathbf{K}\_{\\tilde{\\mathbf{Z}}\\mathbf{Y}}](https://latex.codecogs.com/png.latex?%5Ctilde%7B%5Cmathbf%7B%5Cbeta%7D%7D%20%3D%20%5Cmathbf%7BK%7D%5E%7B-1%7D_%7B%5Ctilde%7B%5Cmathbf%7BZ%7D%7D%5Ctilde%7B%5Cmathbf%7BZ%7D%7D%7D%5Cmathbf%7BK%7D_%7B%5Ctilde%7B%5Cmathbf%7BZ%7D%7D%5Cmathbf%7BY%7D%7D
 "\\tilde{\\mathbf{\\beta}} = \\mathbf{K}^{-1}_{\\tilde{\\mathbf{Z}}\\tilde{\\mathbf{Z}}}\\mathbf{K}_{\\tilde{\\mathbf{Z}}\\mathbf{Y}}")  
+
+</center>
 
 so one never actually have to generate a realization of
 ![\\tilde{V}](https://latex.codecogs.com/png.latex?%5Ctilde%7BV%7D
 "\\tilde{V}") once one has the covariances by which it is defined. We
 may similarly derive the R-squared with this information alone:
 
+<center>
+
   
 ![\\tilde{R}^2 =
 \\frac{\\mathbf{K}^{T}\_{\\tilde{\\mathbf{Z}}\\mathbf{Y}}\\mathbf{K}^{-1}\_{\\tilde{\\mathbf{Z}}\\tilde{\\mathbf{Z}}}\\mathbf{K}\_{\\tilde{\\mathbf{Z}}\\mathbf{Y}}}{\\mathbf{K}\_{\\mathbf{Y}\\mathbf{Y}}}](https://latex.codecogs.com/png.latex?%5Ctilde%7BR%7D%5E2%20%3D%20%5Cfrac%7B%5Cmathbf%7BK%7D%5E%7BT%7D_%7B%5Ctilde%7B%5Cmathbf%7BZ%7D%7D%5Cmathbf%7BY%7D%7D%5Cmathbf%7BK%7D%5E%7B-1%7D_%7B%5Ctilde%7B%5Cmathbf%7BZ%7D%7D%5Ctilde%7B%5Cmathbf%7BZ%7D%7D%7D%5Cmathbf%7BK%7D_%7B%5Ctilde%7B%5Cmathbf%7BZ%7D%7D%5Cmathbf%7BY%7D%7D%7D%7B%5Cmathbf%7BK%7D_%7B%5Cmathbf%7BY%7D%5Cmathbf%7BY%7D%7D%7D
 "\\tilde{R}^2 = \\frac{\\mathbf{K}^{T}_{\\tilde{\\mathbf{Z}}\\mathbf{Y}}\\mathbf{K}^{-1}_{\\tilde{\\mathbf{Z}}\\tilde{\\mathbf{Z}}}\\mathbf{K}_{\\tilde{\\mathbf{Z}}\\mathbf{Y}}}{\\mathbf{K}_{\\mathbf{Y}\\mathbf{Y}}}")  
+
+</center>
 
 By drawing thousands of these control functions we get thousands of
 coefficient vectors and R-squared values which represent the additional
@@ -155,12 +183,12 @@ Sys.setenv("R_REMOTES_NO_ERRORS_FROM_WARNINGS"=TRUE)
 devtools::install_github("christophercschwarz/DOPE",
                          dependencies=TRUE)
 ## 
-##       v  checking for file 'C:\Users\Schwarz\AppData\Local\Temp\RtmpkPzhAt\remotes372421a53fac\christophercschwarz-DOPE-cdbc234/DESCRIPTION'
+##       v  checking for file 'C:\Users\Schwarz\AppData\Local\Temp\RtmpoHM44N\remotes2e444fbf7498\christophercschwarz-DOPE-cdbc234/DESCRIPTION'
 ##       -  preparing 'DOPE':
 ##    checking DESCRIPTION meta-information ...     checking DESCRIPTION meta-information ...   v  checking DESCRIPTION meta-information
 ## -  cleaning src
 ##       -  installing the package to process help pages
-##       -  saving partial Rd database (13.5s)
+##       -  saving partial Rd database (13.6s)
 ##       -  cleaning src
 ##       -  checking for LF line-endings in source and make files and shell scripts
 ##       -  checking for empty or unneeded directories
@@ -336,20 +364,28 @@ matrix
 ![\\mathbf{R}^\*=\\mathbf{QR}](https://latex.codecogs.com/png.latex?%5Cmathbf%7BR%7D%5E%2A%3D%5Cmathbf%7BQR%7D
 "\\mathbf{R}^*=\\mathbf{QR}"), the least squares estimate being
 
+<center>
+
   
 ![\\beta^\* = (\\mathbf{X}^T \\mathbf{Q}^T \\mathbf{Q} \\mathbf{X})^{-1}
 \\mathbf{X}^T \\mathbf{Q}^T
 \\mathbf{QY}](https://latex.codecogs.com/png.latex?%5Cbeta%5E%2A%20%3D%20%28%5Cmathbf%7BX%7D%5ET%20%5Cmathbf%7BQ%7D%5ET%20%5Cmathbf%7BQ%7D%20%5Cmathbf%7BX%7D%29%5E%7B-1%7D%20%5Cmathbf%7BX%7D%5ET%20%5Cmathbf%7BQ%7D%5ET%20%5Cmathbf%7BQY%7D
 "\\beta^* = (\\mathbf{X}^T \\mathbf{Q}^T \\mathbf{Q} \\mathbf{X})^{-1} \\mathbf{X}^T \\mathbf{Q}^T \\mathbf{QY}")  
 
+</center>
+
 that is, a weighted least squares estimate. We can leverage the notion
 of whitening from Aitken estimators like generalized least squares
+
+<center>
 
   
 ![\\hat{\\beta} = (\\mathbf{X}^T \\Omega^{-1} \\mathbf{X})^T
 \\mathbf{X}^T \\Omega^{-1}
 \\mathbf{Y}](https://latex.codecogs.com/png.latex?%5Chat%7B%5Cbeta%7D%20%3D%20%28%5Cmathbf%7BX%7D%5ET%20%5COmega%5E%7B-1%7D%20%5Cmathbf%7BX%7D%29%5ET%20%5Cmathbf%7BX%7D%5ET%20%5COmega%5E%7B-1%7D%20%5Cmathbf%7BY%7D
 "\\hat{\\beta} = (\\mathbf{X}^T \\Omega^{-1} \\mathbf{X})^T \\mathbf{X}^T \\Omega^{-1} \\mathbf{Y}")  
+
+</center>
 
 and linearly transform the data where
 ![\\Omega](https://latex.codecogs.com/png.latex?%5COmega "\\Omega") is
@@ -366,16 +402,25 @@ estimator.
 Splines, kernels, and random effects with quadratic penalties have the
 form
 
+<center>
+
   
 ![\\hat{\\beta} &= (\\mathbf{X}^T\\mathbf{X} + \\lambda
 \\mathbf{D}^T\\mathbf{D})^{-1}
 \\mathbf{X}^Ty](https://latex.codecogs.com/png.latex?%5Chat%7B%5Cbeta%7D%20%26%3D%20%28%5Cmathbf%7BX%7D%5ET%5Cmathbf%7BX%7D%20%2B%20%5Clambda%20%5Cmathbf%7BD%7D%5ET%5Cmathbf%7BD%7D%29%5E%7B-1%7D%20%5Cmathbf%7BX%7D%5ETy
 "\\hat{\\beta} &= (\\mathbf{X}^T\\mathbf{X} + \\lambda \\mathbf{D}^T\\mathbf{D})^{-1} \\mathbf{X}^Ty")  
+
+</center>
+
 for some smoothing parameter
 ![\\lambda](https://latex.codecogs.com/png.latex?%5Clambda "\\lambda"),
 penalty matrix ![D](https://latex.codecogs.com/png.latex?D "D"). With
 the data augmentation trick this can be shown to be identical to the
-regression of   
+regression of
+
+<center>
+
+  
 ![\\begin{align\*}
 \\tilde{\\mathbf{Y}} = \\begin{bmatrix} 
 y \\\\
@@ -395,7 +440,12 @@ y \\\\
                                                                         \\sqrt{\\lambda} \\mathbf{D}
                                                                     \\end{bmatrix}
         \\end{align*}")  
+
+</center>
+
 that is
+
+<center>
 
   
 ![\\hat{\\beta} = (\\tilde{\\mathbf{X}}^T \\tilde{\\mathbf{X}})^T
@@ -403,12 +453,19 @@ that is
 \\tilde{\\mathbf{Y}}](https://latex.codecogs.com/png.latex?%5Chat%7B%5Cbeta%7D%20%3D%20%28%5Ctilde%7B%5Cmathbf%7BX%7D%7D%5ET%20%5Ctilde%7B%5Cmathbf%7BX%7D%7D%29%5ET%20%5Ctilde%7B%5Cmathbf%7BX%7D%7D%5ET%20%5Ctilde%7B%5Cmathbf%7BY%7D%7D
 "\\hat{\\beta} = (\\tilde{\\mathbf{X}}^T \\tilde{\\mathbf{X}})^T \\tilde{\\mathbf{X}}^T \\tilde{\\mathbf{Y}}")  
 
+</center>
+
 More generally, semiparametric regression models often have the form
+
+<center>
 
   
 ![\\hat{\\beta} = (\\mathbf{X}^T \\mathbf{W} \\mathbf{X} + \\lambda
 \\mathbf{D}^T \\mathbf{D})^T \\mathbf{X}^T \\mathbf{W}
 \\mathbf{Y}](https://latex.codecogs.com/png.latex?%5Chat%7B%5Cbeta%7D%20%3D%20%28%5Cmathbf%7BX%7D%5ET%20%5Cmathbf%7BW%7D%20%5Cmathbf%7BX%7D%20%2B%20%5Clambda%20%5Cmathbf%7BD%7D%5ET%20%5Cmathbf%7BD%7D%29%5ET%20%5Cmathbf%7BX%7D%5ET%20%5Cmathbf%7BW%7D%20%5Cmathbf%7BY%7D
 "\\hat{\\beta} = (\\mathbf{X}^T \\mathbf{W} \\mathbf{X} + \\lambda \\mathbf{D}^T \\mathbf{D})^T \\mathbf{X}^T \\mathbf{W} \\mathbf{Y}")  
+
+</center>
+
 which may be put into the desired format by first applying the data
 augmentation trick and then whitening.
