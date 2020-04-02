@@ -228,8 +228,8 @@ plot_DOPE <- function(output,vname,xmin=NULL,xmax=NULL,bw=NULL,shade=FALSE,inclu
   }
   if(include_naive){
     old <- output[cond,]
-    output <- output[-cond,]  
   }
+  output <- na.omit(output)
   
   lims <- c(ifelse(is.null(xmin),quantile(output[,vname],probs=0.02),xmin),
             ifelse(is.null(xmax),quantile(output[,vname],probs=0.98),xmax))
@@ -267,7 +267,7 @@ plot_DOPE <- function(output,vname,xmin=NULL,xmax=NULL,bw=NULL,shade=FALSE,inclu
 }
 
 sensitivity_plot <- function(output,vname,adj=NULL){
-  
+  require(magrittr, quietly = T)
   cond <- which(is.na(output$ControlFunction))
   if(length(cond)!=0){
     old <- output[cond,]
