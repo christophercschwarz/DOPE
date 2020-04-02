@@ -2,7 +2,7 @@
 \alias{RandomCorm}
 \alias{RandomCormCPP}
 \title{Generate a valid correlation matrix}
-\description{Generates a valid correlation matrix of desired size.}
+\description{Generates a valid correlation matrix of desired size.  Repeatedly \link[DOPE]{augment}s until desired size is met.  Currently implimented in both R and C++.  The C++ version is faster while the R version is easier for the expected user base to read and modify as needed.}
 \usage{
   RandomCorm(nvars, buff = sqrt(.Machine$double.eps))
   RandomCormCPP(nvars, buff = sqrt(.Machine$double.eps))
@@ -17,10 +17,7 @@
 }
 
 \value{
-  A valid $nvars \times nvars$ correlation matrix.
-}
-\notes{
-  Repeatedly \link[DOPE]{augment}s until desired size is met.  Currently implimented in both R and C++.  The C++ version is faster while the R version is easier for the expected user base to read and modify as needed.
+  A valid $nvars \times nvars$ correlation matrix.  
 }
 \examples{
   set.seed(1234)
