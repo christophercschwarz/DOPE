@@ -17,7 +17,7 @@
 }
 
 \value{
-  A valid $nvars \times nvars$ correlation matrix.  
+  A valid nvars by nvars correlation matrix.  
 }
 \examples{
   set.seed(1234)
