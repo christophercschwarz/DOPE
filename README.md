@@ -182,19 +182,6 @@ version of the package with the following lines of code:
 Sys.setenv("R_REMOTES_NO_ERRORS_FROM_WARNINGS"=TRUE)
 devtools::install_github("christophercschwarz/DOPE",
                          dependencies=TRUE)
-## 
-##       v  checking for file 'C:\Users\Schwarz\AppData\Local\Temp\RtmpoHM44N\remotes2e444fbf7498\christophercschwarz-DOPE-cdbc234/DESCRIPTION'
-##       -  preparing 'DOPE':
-##    checking DESCRIPTION meta-information ...     checking DESCRIPTION meta-information ...   v  checking DESCRIPTION meta-information
-## -  cleaning src
-##       -  installing the package to process help pages
-##       -  saving partial Rd database (13.6s)
-##       -  cleaning src
-##       -  checking for LF line-endings in source and make files and shell scripts
-##       -  checking for empty or unneeded directories
-##       -  building 'DOPE_1.1.0.tar.gz'
-##      
-## 
 library(DOPE)
 ```
 
