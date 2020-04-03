@@ -233,14 +233,14 @@ dope <- DOPE(mod, nsims = 5000, n.cores = parallel::detectCores())
 ``` r
 tail(dplyr::tbl_df(dope))
 ## # A tibble: 6 x 8
-##   Intercept      V1     V2      V3      V4    V5 ControlFunction R_Squared
-##       <dbl>   <dbl>  <dbl>   <dbl>   <dbl> <dbl>           <dbl>     <dbl>
-## 1   1.26      6.30   15.6  49.5    -13.4   -1.15           37.5      0.923
-## 2   0.275     2.79   -1.18  2.26    -0.762  7.18           -5.04     0.793
-## 3  -0.0203   11.3     9.13  5.02     1.96  -1.10            4.61     0.885
-## 4   0.205     9.66    5.22  7.59     2.01  -2.17            5.15     0.875
-## 5  -0.00395 -50.5   -17.7  -0.0694  23.7   32.5           -10.1      0.867
-## 6   0.0747    0.628   1.56  2.75     4.12   5.30           NA        0.788
+##   Intercept     V1    V2     V3    V4      V5 ControlFunction R_Squared
+##       <dbl>  <dbl> <dbl>  <dbl> <dbl>   <dbl>           <dbl>     <dbl>
+## 1    0.385  28.1    7.96 -3.76  -2.10    7.36         -18.6       0.974
+## 2    0.0843  0.830  1.57  2.90   4.16    5.18           0.243     0.788
+## 3    0.0492  7.61   5.56  3.88  13.7    -1.62         -12.0       0.975
+## 4    0.312  16.1    1.52 -0.900 -1.35    1.64          -9.09      0.999
+## 5   -1.20   30.7   23.7  60.6   21.9  -157.           113.        0.846
+## 6    0.0747  0.628  1.56  2.75   4.12    5.30          NA         0.788
 ```
 
 The result is a dataframe of `nsims` + 1 observations with columns for
@@ -323,6 +323,14 @@ world is more deterministic than reflected in my model.” This is
 represented by the crossed points and increases uncertainty until the
 lower pessimistic bound on effect certainty. The proportion of draws
 rejected by this lower thresholding is given by the filled diamonds.
+
+In this particular example, there is no regressor-error dependency
+actually biasing the result. The true R-squared is near the estimated
+R-squared, and accordingly when we restrict attention to those estimates
+close to this level we become certain that our estimates are
+appropriately signed. In actual empirical practice, however, such
+information is rarely known with any degree of confidence and so this
+extra uncertainty should be reported.
 
 ### Notes on Development Path
 

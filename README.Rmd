@@ -188,6 +188,8 @@ sensitivity_plot(dope,"V2")
 
 The solid dots indicate how the certainty in the effect changes as you say "the world is not that deterministic," reducing the maximum allowable R-squared.  This reduces uncertainty relative to ignornace, indicated by the dashed line, at the cost of restrictiveness, indicated by the hollow points.  In the other direction, one might say that "the world is more deterministic than reflected in my model."  This is represented by the crossed points and increases uncertainty until the lower pessimistic bound on effect certainty.  The proportion of draws rejected by this lower thresholding is given by the filled diamonds.  
 
+In this particular example, there is no regressor-error dependency actually biasing the result.  The true R-squared is near the estimated R-squared, and accordingly when we restrict attention to those estimates close to this level we become certain that our estimates are appropriately signed.  In actual empirical practice, however, such information is rarely known with any degree of confidence and so this extra uncertainty should be reported.
+
 ### Notes on Development Path
 
 There are a number of additional features that will be added to the package over time.  Of particular interest is adding additional facilities for converting regression results into a format which may be easily used with the package.  Currently only linear models and GLMs are supported, the latter requiring to be fit with the `DOPE_irls` function which retains the IRLS weights and then subsequently "whitens" the data to be fit with `lm`.
