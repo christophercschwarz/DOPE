@@ -149,10 +149,9 @@ may similarly derive the R-squared with this information alone:
 
 <center>
 
-  
 ![\\tilde{R}^2 =
 \\frac{\\mathbf{K}^{T}\_{\\tilde{\\mathbf{Z}}\\mathbf{Y}}\\mathbf{K}^{-1}\_{\\tilde{\\mathbf{Z}}\\tilde{\\mathbf{Z}}}\\mathbf{K}\_{\\tilde{\\mathbf{Z}}\\mathbf{Y}}}{\\mathbf{K}\_{\\mathbf{Y}\\mathbf{Y}}}](http://chart.apis.google.com/chart?cht=tx&chl=%5Ctilde%7BR%7D%5E2%20%3D%20%5Cfrac%7B%5Cmathbf%7BK%7D%5E%7BT%7D_%7B%5Ctilde%7B%5Cmathbf%7BZ%7D%7D%5Cmathbf%7BY%7D%7D%5Cmathbf%7BK%7D%5E%7B-1%7D_%7B%5Ctilde%7B%5Cmathbf%7BZ%7D%7D%5Ctilde%7B%5Cmathbf%7BZ%7D%7D%7D%5Cmathbf%7BK%7D_%7B%5Ctilde%7B%5Cmathbf%7BZ%7D%7D%5Cmathbf%7BY%7D%7D%7D%7B%5Cmathbf%7BK%7D_%7B%5Cmathbf%7BY%7D%5Cmathbf%7BY%7D%7D%7D
-"\\tilde{R}^2 = \\frac{\\mathbf{K}^{T}_{\\tilde{\\mathbf{Z}}\\mathbf{Y}}\\mathbf{K}^{-1}_{\\tilde{\\mathbf{Z}}\\tilde{\\mathbf{Z}}}\\mathbf{K}_{\\tilde{\\mathbf{Z}}\\mathbf{Y}}}{\\mathbf{K}_{\\mathbf{Y}\\mathbf{Y}}}")  
+"\\tilde{R}^2 = \\frac{\\mathbf{K}^{T}_{\\tilde{\\mathbf{Z}}\\mathbf{Y}}\\mathbf{K}^{-1}_{\\tilde{\\mathbf{Z}}\\tilde{\\mathbf{Z}}}\\mathbf{K}_{\\tilde{\\mathbf{Z}}\\mathbf{Y}}}{\\mathbf{K}_{\\mathbf{Y}\\mathbf{Y}}}")
 
 </center>
 
@@ -169,6 +168,24 @@ version of the package with the following lines of code:
 Sys.setenv("R_REMOTES_NO_ERRORS_FROM_WARNINGS"=TRUE)
 devtools::install_github("christophercschwarz/DOPE",
                          dependencies=TRUE)
+## glue (1.3.2 -> 1.4.0) [CRAN]
+## 
+##   There is a binary version available but the source version is later:
+##      binary source needs_compilation
+## glue  1.3.2  1.4.0              TRUE
+## 
+##          checking for file 'C:\Users\Schwarz\AppData\Local\Temp\RtmpGUmmoF\remotes2c546ccc11d9\christophercschwarz-DOPE-2b6c262/DESCRIPTION' ...  v  checking for file 'C:\Users\Schwarz\AppData\Local\Temp\RtmpGUmmoF\remotes2c546ccc11d9\christophercschwarz-DOPE-2b6c262/DESCRIPTION'
+##       -  preparing 'DOPE':
+##    checking DESCRIPTION meta-information ...     checking DESCRIPTION meta-information ...   v  checking DESCRIPTION meta-information
+## -  cleaning src
+##       -  installing the package to process help pages
+##       -  saving partial Rd database (21.7s)
+##       -  cleaning src
+##       -  checking for LF line-endings in source and make files and shell scripts
+##       -  checking for empty or unneeded directories
+##       -  building 'DOPE_1.1.0.tar.gz'
+##      
+## 
 library(DOPE)
 ```
 
@@ -407,11 +424,10 @@ that is
 
 <center>
 
-  
 ![\\hat{\\beta} = (\\tilde{\\mathbf{X}}^T \\tilde{\\mathbf{X}})^T
 \\tilde{\\mathbf{X}}^T
 \\tilde{\\mathbf{Y}}](http://chart.apis.google.com/chart?cht=tx&chl=%5Chat%7B%5Cbeta%7D%20%3D%20%28%5Ctilde%7B%5Cmathbf%7BX%7D%7D%5ET%20%5Ctilde%7B%5Cmathbf%7BX%7D%7D%29%5ET%20%5Ctilde%7B%5Cmathbf%7BX%7D%7D%5ET%20%5Ctilde%7B%5Cmathbf%7BY%7D%7D
-"\\hat{\\beta} = (\\tilde{\\mathbf{X}}^T \\tilde{\\mathbf{X}})^T \\tilde{\\mathbf{X}}^T \\tilde{\\mathbf{Y}}")  
+"\\hat{\\beta} = (\\tilde{\\mathbf{X}}^T \\tilde{\\mathbf{X}})^T \\tilde{\\mathbf{X}}^T \\tilde{\\mathbf{Y}}")
 
 </center>
 
@@ -420,25 +436,15 @@ responses often have the form
 
 <center>
 
-  
 ![\\hat{\\beta} = (\\mathbf{X}^T \\mathbf{W} \\mathbf{X} + \\lambda
 \\mathbf{D}^T \\mathbf{D})^T \\mathbf{X}^T \\mathbf{W}
-<<<<<<< HEAD
 \\mathbf{z}](http://chart.apis.google.com/chart?cht=tx&chl=%5Chat%7B%5Cbeta%7D%20%3D%20%28%5Cmathbf%7BX%7D%5ET%20%5Cmathbf%7BW%7D%20%5Cmathbf%7BX%7D%20%2B%20%5Clambda%20%5Cmathbf%7BD%7D%5ET%20%5Cmathbf%7BD%7D%29%5ET%20%5Cmathbf%7BX%7D%5ET%20%5Cmathbf%7BW%7D%20%5Cmathbf%7Bz%7D
-=======
-\\mathbf{Y}](https://latex.codecogs.com/png.latex?%5Chat%7B%5Cbeta%7D%20%3D%20%28%5Cmathbf%7BX%7D%5ET%20%5Cmathbf%7BW%7D%20%5Cmathbf%7BX%7D%20%2B%20%5Clambda%20%5Cmathbf%7BD%7D%5ET%20%5Cmathbf%7BD%7D%29%5ET%20%5Cmathbf%7BX%7D%5ET%20%5Cmathbf%7BW%7D%20%5Cmathbf%7BY%7D
->>>>>>> efcacf4a83a0a7aa3dc92ff5222d1755af42b2c7
-"\\hat{\\beta} = (\\mathbf{X}^T \\mathbf{W} \\mathbf{X} + \\lambda \\mathbf{D}^T \\mathbf{D})^T \\mathbf{X}^T \\mathbf{W} \\mathbf{z}")  
+"\\hat{\\beta} = (\\mathbf{X}^T \\mathbf{W} \\mathbf{X} + \\lambda \\mathbf{D}^T \\mathbf{D})^T \\mathbf{X}^T \\mathbf{W} \\mathbf{z}")
 
 </center>
 
-<<<<<<< HEAD
 where
 ![\\mathbf{z}](http://chart.apis.google.com/chart?cht=tx&chl=%5Cmathbf%7Bz%7D
 "\\mathbf{z}") is the working variable. These may be put into the
 desired format by first applying the data augmentation trick and then
 whitening.
-=======
-where $\mathbf{z}$ is the "working variable."  These may be put into the desired format by first applying the data
-augmentation trick and then whitening.
->>>>>>> efcacf4a83a0a7aa3dc92ff5222d1755af42b2c7

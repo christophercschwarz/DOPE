@@ -68,7 +68,7 @@ $$\tilde{\mathbf{\beta}} = \mathbf{K}^{-1}_{\tilde{\mathbf{Z}}\tilde{\mathbf{Z}}
 so one never actually have to generate a realization of $\tilde{V}$ once one has the covariances by which it is defined.  We may similarly derive the R-squared with this information alone:
 
 <center>
-$$\tilde{R}^2 = \frac{\mathbf{K}^{T}_{\tilde{\mathbf{Z}}\mathbf{Y}}\mathbf{K}^{-1}_{\tilde{\mathbf{Z}}\tilde{\mathbf{Z}}}\mathbf{K}_{\tilde{\mathbf{Z}}\mathbf{Y}}}{\mathbf{K}_{\mathbf{Y}\mathbf{Y}}}$$
+$\tilde{R}^2 = \frac{\mathbf{K}^{T}_{\tilde{\mathbf{Z}}\mathbf{Y}}\mathbf{K}^{-1}_{\tilde{\mathbf{Z}}\tilde{\mathbf{Z}}}\mathbf{K}_{\tilde{\mathbf{Z}}\mathbf{Y}}}{\mathbf{K}_{\mathbf{Y}\mathbf{Y}}}$
 </center>
 
 By drawing thousands of these control functions we get thousands of coefficient vectors and R-squared values which represent the additional uncertainty in our results to the threat of hidden biases.
@@ -201,10 +201,10 @@ $\begin{align}
         \end{align}$</center>
 that is
 <center>
-$$\hat{\beta} = (\tilde{\mathbf{X}}^T \tilde{\mathbf{X}})^T \tilde{\mathbf{X}}^T \tilde{\mathbf{Y}}$$</center>
+$\hat{\beta} = (\tilde{\mathbf{X}}^T \tilde{\mathbf{X}})^T \tilde{\mathbf{X}}^T \tilde{\mathbf{Y}}$</center>
 
 More generally, semiparametric regression models with non-normal responses often have the form
 <center>
-$$\hat{\beta} = (\mathbf{X}^T \mathbf{W} \mathbf{X} + \lambda \mathbf{D}^T \mathbf{D})^T \mathbf{X}^T \mathbf{W} \mathbf{z}$$</center>
+$\hat{\beta} = (\mathbf{X}^T \mathbf{W} \mathbf{X} + \lambda \mathbf{D}^T \mathbf{D})^T \mathbf{X}^T \mathbf{W} \mathbf{z}$</center>
 
 where $\mathbf{z}$ is the working variable.  These may be put into the desired format by first applying the data augmentation trick and then whitening.
