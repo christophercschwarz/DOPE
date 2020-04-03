@@ -423,13 +423,22 @@ responses often have the form
   
 ![\\hat{\\beta} = (\\mathbf{X}^T \\mathbf{W} \\mathbf{X} + \\lambda
 \\mathbf{D}^T \\mathbf{D})^T \\mathbf{X}^T \\mathbf{W}
+<<<<<<< HEAD
 \\mathbf{z}](http://chart.apis.google.com/chart?cht=tx&chl=%5Chat%7B%5Cbeta%7D%20%3D%20%28%5Cmathbf%7BX%7D%5ET%20%5Cmathbf%7BW%7D%20%5Cmathbf%7BX%7D%20%2B%20%5Clambda%20%5Cmathbf%7BD%7D%5ET%20%5Cmathbf%7BD%7D%29%5ET%20%5Cmathbf%7BX%7D%5ET%20%5Cmathbf%7BW%7D%20%5Cmathbf%7Bz%7D
+=======
+\\mathbf{Y}](https://latex.codecogs.com/png.latex?%5Chat%7B%5Cbeta%7D%20%3D%20%28%5Cmathbf%7BX%7D%5ET%20%5Cmathbf%7BW%7D%20%5Cmathbf%7BX%7D%20%2B%20%5Clambda%20%5Cmathbf%7BD%7D%5ET%20%5Cmathbf%7BD%7D%29%5ET%20%5Cmathbf%7BX%7D%5ET%20%5Cmathbf%7BW%7D%20%5Cmathbf%7BY%7D
+>>>>>>> efcacf4a83a0a7aa3dc92ff5222d1755af42b2c7
 "\\hat{\\beta} = (\\mathbf{X}^T \\mathbf{W} \\mathbf{X} + \\lambda \\mathbf{D}^T \\mathbf{D})^T \\mathbf{X}^T \\mathbf{W} \\mathbf{z}")  
 
 </center>
 
+<<<<<<< HEAD
 where
 ![\\mathbf{z}](http://chart.apis.google.com/chart?cht=tx&chl=%5Cmathbf%7Bz%7D
 "\\mathbf{z}") is the working variable. These may be put into the
 desired format by first applying the data augmentation trick and then
 whitening.
+=======
+where $\mathbf{z}$ is the "working variable."  These may be put into the desired format by first applying the data
+augmentation trick and then whitening.
+>>>>>>> efcacf4a83a0a7aa3dc92ff5222d1755af42b2c7
