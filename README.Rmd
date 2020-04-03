@@ -2,7 +2,7 @@
 title: "Distributions of Possible Effects"
 output: 
   rmarkdown::github_document:
-    pandoc_args: --webtex
+    pandoc_args: --webtex=http://chart.apis.google.com/chart?cht=tx&chl=
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -25,21 +25,19 @@ A simple example aids intuition.  Suppose that we are interested in the effect o
 $$\mathbf{Y} = \mathbf{X\beta} + \mathbf{\epsilon^*}$$
 </center>
 
-where $\mathbf{\epsilon^*}$ is a latent random variable and $\beta$ is the ATE.  Regardless of the source, regressor-error dependencies manifest such that E$(\mathbf{\epsilon^*}|\mathbf{X})=0$ and so 
+where $\mathbf{\epsilon^*}$ is a latent random variable and $\beta$ is the ATE.  Regardless of the source, regressor-error dependencies manifest such that $E(\mathbf{\epsilon^*}|\mathbf{X})=0$ and so 
 
 <center>
-$$\begin{align*}
+$\begin{align}
     \hat{\mathbf{\beta}} &= (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{Y} \\
     &= \mathbf{\beta} + (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{\epsilon^*} \neq \beta
-\end{align*}$$
+\end{align}$
 </center>
 
 The basic idea of a control function is to construct, usually using instrumental variables, some $\mathbf{V}$ for which $E(\mathbf{\epsilon^*}|\mathbf{X},\mathbf{V})=0$ and include that term as a regressor to purge the dependency.  We are usually in the position where no such control function can be constructed.  Regardless, we know that with the correct control function the regression of $\mathbf{Y}$ on $\mathbf{Z}=(\mathbf{X},\mathbf{V})$ yields coefficients
 
 <center>
-$$\begin{align*}
-    \hat{\mathbf{\beta}} &= (\mathbf{Z}^T\mathbf{Z})^{-1}\mathbf{Z}^T\mathbf{Y}
-\end{align*}$$
+$$\hat{\mathbf{\beta}} = (\mathbf{Z}^T\mathbf{Z})^{-1}\mathbf{Z}^T\mathbf{Y}$$
 </center>
 
 which contains coefficients carrying a causal interpretation.
@@ -55,10 +53,10 @@ This algorithm effectively repeatedly uses the Cholesky decomposition to build u
 To apply this to regression, note that we may rearrange the augmented covariance matrix as
 
 <center>
-$$\Sigma^* &= \begin{bmatrix}
-                \mathbf{K}_{\Tilde{\mathbf{Z}}\Tilde{\mathbf{Z}}} & \mathbf{K}_{\Tilde{\mathbf{Z}}\mathbf{Y}}\\ 
-                \mathbf{K}_{\mathbf{Y}\Tilde{\mathbf{Z}}} & \mathbf{K_{YY}}
-\end{bmatrix}$$      
+$\Sigma^* = \begin{bmatrix}
+                \mathbf{K}_{\tilde{\mathbf{Z}}\tilde{\mathbf{Z}}} & \mathbf{K}_{\tilde{\mathbf{Z}}\mathbf{Y}}\\ 
+                \mathbf{K}_{\mathbf{Y}\tilde{\mathbf{Z}}} & \mathbf{K_{YY}}
+\end{bmatrix}$      
 </center>
 
 with $\tilde{\mathbf{Z}} = (\mathbf{X},\tilde{\mathbf{V}})$ where $\tilde{\mathbf{V}}$ is the control function defined by one run of Algorithm 1.  The coefficients from the regression of $\mathbf{Y}$ on $\mathbf{X}$ and $\tilde{\mathbf{V}}$ are given by
@@ -175,7 +173,7 @@ There are a number of additional features that will be added to the package over
 By staying firmly within a regression framework the package can be extended to conduct sensitivity analysis on a wite array of semiparametric distributional regression models as well as sampling variability.  For example, a bootstrap step could be implimented by noting that $n$ samples from $n$ observations can be written as an $n \times n$ matrix $\mathbf{Q}$.  For observed data $\mathbf{R}=(\mathbf{Y},\mathbf{X})$ a bootstrap replicate is simply $\mathbf{R}^*=\mathbf{QR}$, the least squares estimate being 
 
 <center>
-$$\beta^* = (\mathbf{X}^T \mathbf{Q}^T \mathbf{Q} \mathbf{X})^{-1} \mathbf{X}^T \mathbf{Q}^T \mathbf{QY}$$</center>
+$\beta^* = (\mathbf{X}^T \mathbf{Q}^T \mathbf{Q} \mathbf{X})^{-1} \mathbf{X}^T \mathbf{Q}^T \mathbf{QY}$</center>
 
 that is, a weighted least squares estimate.  We can leverage the notion of whitening from Aitken estimators like generalized least squares
 
@@ -188,11 +186,11 @@ and linearly transform the data where $\Omega$ is Cholesky decomposed into $\mat
 Splines, kernels, and random effects with quadratic penalties have the form
 
 <center>
-$$\hat{\beta} &= (\mathbf{X}^T\mathbf{X} + \lambda \mathbf{D}^T\mathbf{D})^{-1} \mathbf{X}^Ty$$</center>
+$$\hat{\beta} = (\mathbf{X}^T\mathbf{X} + \lambda \mathbf{D}^T\mathbf{D})^{-1} \mathbf{X}^T\mathbf{Y}$$</center>
 
 for some smoothing parameter $\lambda$, penalty matrix $D$.  With the data augmentation trick this can be shown to be identical to the regression of 
 <center>
-$$\begin{align*}
+$\begin{align}
             \tilde{\mathbf{Y}} = \begin{bmatrix} 
                                 y \\
                                 0
@@ -200,13 +198,13 @@ $$\begin{align*}
                                                                         \mathbf{X}\\
                                                                         \sqrt{\lambda} \mathbf{D}
                                                                     \end{bmatrix}
-        \end{align*}$$</center>
+        \end{align}$</center>
 that is
 <center>
 $$\hat{\beta} = (\tilde{\mathbf{X}}^T \tilde{\mathbf{X}})^T \tilde{\mathbf{X}}^T \tilde{\mathbf{Y}}$$</center>
 
-More generally, semiparametric regression models often have the form
+More generally, semiparametric regression models with non-normal responses often have the form
 <center>
-$$\hat{\beta} = (\mathbf{X}^T \mathbf{W} \mathbf{X} + \lambda \mathbf{D}^T \mathbf{D})^T \mathbf{X}^T \mathbf{W} \mathbf{Y}$$</center>
+$$\hat{\beta} = (\mathbf{X}^T \mathbf{W} \mathbf{X} + \lambda \mathbf{D}^T \mathbf{D})^T \mathbf{X}^T \mathbf{W} \mathbf{z}$$</center>
 
-which may be put into the desired format by first applying the data augmentation trick and then whitening.
+where $\mathbf{z}$ is the working variable.  These may be put into the desired format by first applying the data augmentation trick and then whitening.
