@@ -188,21 +188,21 @@ set.seed(8675309)
 x_vars <- 5
 n_obs <- 1000
 corm <- RandomCormCPP(nvars = x_vars)
-X_mat <- MASS::mvrnorm(n_obs, rep(0,x_vars), Sigma = corm, empirical = TRUE)
+X_mat <- MASS::mvrnorm(n_obs, rep(0,x_vars), Sigma = corm)
 
 betas <- 1:x_vars
 
-y <- X_mat %*% betas + rnorm(n_obs, 0, 1)
+y <- X_mat %*% betas + rnorm(n_obs, 0, 5)
 
 dat <- data.frame(y,X_mat)
 cov(dat)
-##            y         V1         V2         V3         V4         V5
-## y  96.249064  8.2893844 -3.2385370  5.9116955  8.1197634  8.6556218
-## V1  8.289384  1.0000000 -0.6810327  0.5393754  0.7133123  0.8364409
-## V2 -3.238537 -0.6810327  1.0000000 -0.6527605 -0.1538645 -0.3959848
-## V3  5.911695  0.5393754 -0.6527605  1.0000000  0.3200147  0.4794690
-## V4  8.119763  0.7133123 -0.1538645  0.3200147  1.0000000  0.5489857
-## V5  8.655622  0.8364409 -0.3959848  0.4794690  0.5489857  1.0000000
+##             y         V1         V2         V3         V4         V5
+## y  121.467197  8.2838206 -3.3630478  6.0726558  8.1503611  8.5835385
+## V1   8.283821  0.9339341 -0.6078563  0.5360767  0.7143011  0.7979034
+## V2  -3.363048 -0.6078563  0.9102019 -0.6559167 -0.1451956 -0.3767998
+## V3   6.072656  0.5360767 -0.6559167  1.0287591  0.3094510  0.5009242
+## V4   8.150361  0.7143011 -0.1451956  0.3094510  1.0035173  0.5555419
+## V5   8.583538  0.7979034 -0.3767998  0.5009242  0.5555419  0.9444915
 ```
 
 The lower V1-V5 sub-matrix is a draw from the set of valid correlation
@@ -233,14 +233,14 @@ dope <- DOPE(mod, nsims = 5000, n.cores = parallel::detectCores())
 ``` r
 tail(dplyr::tbl_df(dope))
 ## # A tibble: 6 x 8
-##   Intercept     V1    V2    V3    V4    V5 ControlFunction R_Squared
-##       <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl>           <dbl>     <dbl>
-## 1    0.0135  4.04   2.86  3.34  2.92  3.19          -1.02      0.994
-## 2    0.0135 -0.125  1.39  2.88  4.28  5.33           0.420     0.990
-## 3    0.0135  1.27   2.32  2.93  4.78  3.84           1.11      0.992
-## 4    0.0135  1.50   1.76  2.79  4.62  3.46           1.18      0.992
-## 5    0.0135  3.23   3.39  4.04  3.15  4.45           1.35      0.998
-## 6    0.0135  1.11   2.04  3.02  3.98  4.90          NA         0.989
+##   Intercept      V1     V2      V3      V4    V5 ControlFunction R_Squared
+##       <dbl>   <dbl>  <dbl>   <dbl>   <dbl> <dbl>           <dbl>     <dbl>
+## 1   1.26      6.30   15.6  49.5    -13.4   -1.15           37.5      0.923
+## 2   0.275     2.79   -1.18  2.26    -0.762  7.18           -5.04     0.793
+## 3  -0.0203   11.3     9.13  5.02     1.96  -1.10            4.61     0.885
+## 4   0.205     9.66    5.22  7.59     2.01  -2.17            5.15     0.875
+## 5  -0.00395 -50.5   -17.7  -0.0694  23.7   32.5           -10.1      0.867
+## 6   0.0747    0.628   1.56  2.75     4.12   5.30           NA        0.788
 ```
 
 The result is a dataframe of `nsims` + 1 observations with columns for
@@ -257,7 +257,7 @@ plot_DOPE(dope,"V2") + ggtitle("Distribution of Possible Effects: V2")
 
 <img src="README_figs/README-unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" />
 
-In this example, based upon 5000 draws around 84% of the estimated
+In this example, based upon 5000 draws around 60% of the estimated
 effects are greater than zero with a 95% credible interval given by the
 lower and upper 95 bounds. The naive estimate is indicated in red. Since
 the distribution is simulated setting a seed and using a large number of

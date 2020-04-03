@@ -113,11 +113,11 @@ set.seed(8675309)
 x_vars <- 5
 n_obs <- 1000
 corm <- RandomCormCPP(nvars = x_vars)
-X_mat <- MASS::mvrnorm(n_obs, rep(0,x_vars), Sigma = corm, empirical = TRUE)
+X_mat <- MASS::mvrnorm(n_obs, rep(0,x_vars), Sigma = corm)
 
 betas <- 1:x_vars
 
-y <- X_mat %*% betas + rnorm(n_obs, 0, 1)
+y <- X_mat %*% betas + rnorm(n_obs, 0, 5)
 
 dat <- data.frame(y,X_mat)
 cov(dat)
@@ -145,7 +145,7 @@ The result is a dataframe of `nsims` + 1 observations with columns for each of t
 plot_DOPE(dope,"V2") + ggtitle("Distribution of Possible Effects: V2")
 ```
 
-In this example, based upon 5000 draws around 84\% of the estimated effects are greater than zero with a 95% credible interval given by the lower and upper 95 bounds.  The naive estimate is indicated in red.  Since the distribution is simulated setting a seed and using a large number of draws is highly recommended, but these quantities usually become stable with over 20,000 draws.
+In this example, based upon 5000 draws around 60\% of the estimated effects are greater than zero with a 95% credible interval given by the lower and upper 95 bounds.  The naive estimate is indicated in red.  Since the distribution is simulated setting a seed and using a large number of draws is highly recommended, but these quantities usually become stable with over 20,000 draws.
 
 We can get a little bit more information from the plot by shading based upon the R-squared from each regression and turning off the naive result.
 
