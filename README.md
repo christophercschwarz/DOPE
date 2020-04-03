@@ -168,24 +168,6 @@ version of the package with the following lines of code:
 Sys.setenv("R_REMOTES_NO_ERRORS_FROM_WARNINGS"=TRUE)
 devtools::install_github("christophercschwarz/DOPE",
                          dependencies=TRUE)
-## glue (1.3.2 -> 1.4.0) [CRAN]
-## 
-##   There is a binary version available but the source version is later:
-##      binary source needs_compilation
-## glue  1.3.2  1.4.0              TRUE
-## 
-##          checking for file 'C:\Users\Schwarz\AppData\Local\Temp\RtmpGUmmoF\remotes2c546ccc11d9\christophercschwarz-DOPE-2b6c262/DESCRIPTION' ...  v  checking for file 'C:\Users\Schwarz\AppData\Local\Temp\RtmpGUmmoF\remotes2c546ccc11d9\christophercschwarz-DOPE-2b6c262/DESCRIPTION'
-##       -  preparing 'DOPE':
-##    checking DESCRIPTION meta-information ...     checking DESCRIPTION meta-information ...   v  checking DESCRIPTION meta-information
-## -  cleaning src
-##       -  installing the package to process help pages
-##       -  saving partial Rd database (21.7s)
-##       -  cleaning src
-##       -  checking for LF line-endings in source and make files and shell scripts
-##       -  checking for empty or unneeded directories
-##       -  building 'DOPE_1.1.0.tar.gz'
-##      
-## 
 library(DOPE)
 ```
 
@@ -248,6 +230,19 @@ set.seed(6161918)
 dope <- DOPE(mod, nsims = 5000, n.cores = parallel::detectCores())
 ```
 
+``` r
+tail(dplyr::tbl_df(dope))
+## # A tibble: 6 x 8
+##   Intercept     V1    V2    V3    V4    V5 ControlFunction R_Squared
+##       <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl>           <dbl>     <dbl>
+## 1    0.0135  4.04   2.86  3.34  2.92  3.19          -1.02      0.994
+## 2    0.0135 -0.125  1.39  2.88  4.28  5.33           0.420     0.990
+## 3    0.0135  1.27   2.32  2.93  4.78  3.84           1.11      0.992
+## 4    0.0135  1.50   1.76  2.79  4.62  3.46           1.18      0.992
+## 5    0.0135  3.23   3.39  4.04  3.15  4.45           1.35      0.998
+## 6    0.0135  1.11   2.04  3.02  3.98  4.90          NA         0.989
+```
+
 The result is a dataframe of `nsims` + 1 observations with columns for
 each of the estimated coefficients, the control function coefficient,
 and model R-squared. The last observation simply re-states the results
@@ -260,7 +255,7 @@ easily modified by adding additional layers.
 plot_DOPE(dope,"V2") + ggtitle("Distribution of Possible Effects: V2")
 ```
 
-<img src="README_figs/README-unnamed-chunk-6-1.png" width="672" />
+<img src="README_figs/README-unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" />
 
 In this example, based upon 5000 draws around 84% of the estimated
 effects are greater than zero with a 95% credible interval given by the
@@ -277,7 +272,7 @@ result.
 plot_DOPE(dope,"V2",shade=T,include_naive = F) + ggtitle("Distribution of Possible Effects: V2")
 ```
 
-<img src="README_figs/README-unnamed-chunk-7-1.png" width="672" />
+<img src="README_figs/README-unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" />
 
 Lighter shades indicate lower R-squared than darker shades, given a
 sense for how fits are distributed across the effect values. This is
@@ -290,7 +285,7 @@ greyscale we can add another layer like so:
 plot_DOPE(dope,"V2",shade=T,include_naive = F) + ggtitle("Distribution of Possible Effects: V2") + scale_fill_discrete()
 ```
 
-<img src="README_figs/README-unnamed-chunk-8-1.png" width="672" />
+<img src="README_figs/README-unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" />
 
 If there is a particular color palette you are looking for you can use
 it using something like the following.
@@ -308,7 +303,7 @@ n_fills <- as.numeric(regmatches(st,gregexpr("[[:digit:]]+",st))[[1]][1])
 p + scale_fill_manual(values=colorRampPalette(wes_palette("Zissou1"))(n_fills))
 ```
 
-<img src="README_figs/README-unnamed-chunk-9-1.png" width="672" />
+<img src="README_figs/README-unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" />
 
 We can get a sense for how the distribution of possible effects changes
 with restrictions on the R-squared with a `sensitivity_plot`.
@@ -317,7 +312,7 @@ with restrictions on the R-squared with a `sensitivity_plot`.
 sensitivity_plot(dope,"V2")
 ```
 
-<img src="README_figs/README-unnamed-chunk-11-1.png" width="672" />
+<img src="README_figs/README-unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;" />
 
 The solid dots indicate how the certainty in the effect changes as you
 say “the world is not that deterministic,” reducing the maximum
@@ -443,7 +438,7 @@ responses often have the form
 
 </center>
 
-where
+6 where
 ![\\mathbf{z}](http://chart.apis.google.com/chart?cht=tx&chl=%5Cmathbf%7Bz%7D
 "\\mathbf{z}") is the working variable. These may be put into the
 desired format by first applying the data augmentation trick and then

@@ -9,6 +9,17 @@ output:
 
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(collapse=TRUE, comment="##", fig.retina=2, fig.path = "README_figs/README-")
+
+knitr::opts_chunk$set(
+  fig.align = "center"
+)
+knitr::knit_hooks$set(imgcenter = function(before, options, envir){
+  if (before) {
+    HTML("<p align='center'>")
+  } else {
+    HTML("</p>")
+  }
+})
 ```
 
 ### Why should I use it?
@@ -76,7 +87,15 @@ By drawing thousands of these control functions we get thousands of coefficient 
 ### How do I get it?
 
 Until the package is released on CRAN you can install the developmental version of the package with the following lines of code:
-```{r message=FALSE, warning=FALSE}
+
+```{r message=FALSE, warning=FALSE, echo=FALSE, results=FALSE}
+Sys.setenv("R_REMOTES_NO_ERRORS_FROM_WARNINGS"=TRUE)
+devtools::install_github("christophercschwarz/DOPE",
+                         dependencies=TRUE)
+library(DOPE)
+```
+
+```{r message=FALSE, warning=FALSE, eval=FALSE}
 Sys.setenv("R_REMOTES_NO_ERRORS_FROM_WARNINGS"=TRUE)
 devtools::install_github("christophercschwarz/DOPE",
                          dependencies=TRUE)
@@ -115,6 +134,9 @@ Since we have control over the process by which the data was generated we know t
 ```{r results=FALSE}
 set.seed(6161918)
 dope <- DOPE(mod, nsims = 5000, n.cores = parallel::detectCores())
+```
+```{r}
+tail(dplyr::tbl_df(dope))
 ```
 
 The result is a dataframe of `nsims` + 1 observations with columns for each of the estimated coefficients, the control function coefficient, and model R-squared.  The last observation simply re-states the results from the naive model for use in plotting functions.  The most basic plot shows the simulated distribution of possible effects and gives a number of useful summaries.  Because these are `ggplot` objects, that can be easily modified by adding additional layers.
@@ -206,5 +228,5 @@ $\hat{\beta} = (\tilde{\mathbf{X}}^T \tilde{\mathbf{X}})^T \tilde{\mathbf{X}}^T 
 More generally, semiparametric regression models with non-normal responses often have the form
 <center>
 $\hat{\beta} = (\mathbf{X}^T \mathbf{W} \mathbf{X} + \lambda \mathbf{D}^T \mathbf{D})^T \mathbf{X}^T \mathbf{W} \mathbf{z}$</center>
-
+6
 where $\mathbf{z}$ is the working variable.  These may be put into the desired format by first applying the data augmentation trick and then whitening.
