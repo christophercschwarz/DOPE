@@ -205,9 +205,9 @@ that is, a weighted least squares estimate.  We can leverage the notion of white
 $$\hat{\beta} = (\mathbf{X}^T \Omega^{-1} \mathbf{X})^T \mathbf{X}^T \Omega^{-1} \mathbf{Y}$$
 </center>
 
-and linearly transform the data where $\Omega$ is Cholesky decomposed into $\mathbf{CC}^T$ and one regresses $\mathbf{Y}^* = \mathbf{C}^{-1} \mathbf{Y}$ on $\mathbf{X}^* = \mathbf{C}^{-1} \mathbf{X}$ as an equivalent estimator.
+and linearly transform the data where $\Omega$ is Cholesky decomposed into $\mathbf{CC}^T$ and one regresses $\mathbf{Y}^* = \mathbf{C}^{-1} \mathbf{Y}$ on $\mathbf{X}^* = \mathbf{C}^{-1} \mathbf{X}$ as an equivalent estimator.  A similar approach can be taken to account for heterogeneity utilizing Aronow and Samii's multiple regression weights or moving the estimand from the ATE to the ATT or ATC.
 
-Splines, kernels, and random effects with quadratic penalties have the form
+Other approaches to heterogenous effects are straightforward to apply.  Splines, kernels, and random effects with quadratic penalties have the form
 
 <center>
 $$\hat{\beta} = (\mathbf{X}^T\mathbf{X} + \lambda \mathbf{D}^T\mathbf{D})^{-1} \mathbf{X}^T\mathbf{Y}$$</center>
@@ -227,8 +227,22 @@ that is
 <center>
 $\hat{\beta} = (\tilde{\mathbf{X}}^T \tilde{\mathbf{X}})^T \tilde{\mathbf{X}}^T \tilde{\mathbf{Y}}$</center>
 
+Depending on the goal, one could estimate $\lambda$ as a mixed model, through cross-validation, or select a small value merely for computational convenience resulting in a continuous analogy to model saturation.
+
 More generally, semiparametric regression models with non-normal responses often have the form
 <center>
 $\hat{\beta} = (\mathbf{X}^T \mathbf{W} \mathbf{X} + \lambda \mathbf{D}^T \mathbf{D})^T \mathbf{X}^T \mathbf{W} \mathbf{z}$</center>
-6
+
 where $\mathbf{z}$ is the working variable.  These may be put into the desired format by first applying the data augmentation trick and then whitening.
+
+Another line for extensions would be towards inference beyond the mean.  A convenient parametric framework is the family of Generalized Additive Models for Location, Scale, and Shape (GAMLSS).  Unlike GLMs which are constrained to the single parameter exponential family of distributions, GAMLSS currently allows for well over 100 continuous, discrete, and mixed distributions as well as transformed, truncated, or censored versons of those distributions.  In all cases, all parameters of the response variable may be modeled using explanatory variables and additive smoothers including those mentioned in the previous section.  Currently limited to distributions with four or fewer parameters, the general form is usually characterized as
+
+$\begin{equation}
+    \mathbf{Y} \overset{ind}{\sim} \mathcal{D}(\mathbf{\mu},\mathbf{\sigma},\mathbf{\nu},\mathbf{\tau})
+\end{equation}$
+
+where
+
+$\eta_k = g_k(\theta) = \mathbf{X}_k \beta_k + \mathbf{Z}_k \gamma_k$
+
+for $\theta \in \{\mathbf{\mu},\mathbf{\sigma},\mathbf{\nu},\mathbf{\tau}\}$ corresponding to $k \in \{1,2,3,4\}$, i.e. location, scale, skew, and kurtosis, although the exact number and definition of parameters depends on the distribution being fit.  In the above, $\mathbf{X}$ represents fixed effects and $\mathbf{Z}$ represents random effects -- including splines or kernels -- with $g(\cdot)$ as the link function; GLMs, GAMs, GLMMs, and GAMMs are all special cases.  Such models are currently fit with a combination of IRLS and backfitting; relying on quadratic smoothers means that they may be "whitened" and "augmented" in the exact same way as those raised above, allowing for sensitivity analysis to be conducted for hypotheses beyond mean effects (i.e. treatment effects on variance, skew, kurtosis).  If one is unwilling to make parametric assumptions, expectile smoothing is a viable alternative to quantile regression which gives an explicit solution as a least squares problem.

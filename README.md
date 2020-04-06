@@ -233,14 +233,14 @@ dope <- DOPE(mod, nsims = 5000, n.cores = parallel::detectCores())
 ``` r
 tail(dplyr::tbl_df(dope))
 ## # A tibble: 6 x 8
-##   Intercept     V1    V2     V3    V4      V5 ControlFunction R_Squared
-##       <dbl>  <dbl> <dbl>  <dbl> <dbl>   <dbl>           <dbl>     <dbl>
-## 1    0.385  28.1    7.96 -3.76  -2.10    7.36         -18.6       0.974
-## 2    0.0843  0.830  1.57  2.90   4.16    5.18           0.243     0.788
-## 3    0.0492  7.61   5.56  3.88  13.7    -1.62         -12.0       0.975
-## 4    0.312  16.1    1.52 -0.900 -1.35    1.64          -9.09      0.999
-## 5   -1.20   30.7   23.7  60.6   21.9  -157.           113.        0.846
-## 6    0.0747  0.628  1.56  2.75   4.12    5.30          NA         0.788
+##   Intercept      V1     V2     V3    V4      V5 ControlFunction R_Squared
+##       <dbl>   <dbl>  <dbl>  <dbl> <dbl>   <dbl>           <dbl>     <dbl>
+## 1   -0.433   46.9    4.92   4.72  -4.47 -77.4           -51.3       0.995
+## 2    0.173  -10.0   -6.43  -0.444 15.9   10.0            -8.07      0.874
+## 3    0.0349 -12.7   -9.27  -2.03  13.2    5.12            7.64      0.990
+## 4    0.0710   0.658  1.67   2.74   4.11   5.36            0.290     0.789
+## 5   -0.0375   0.293  0.410  1.13  10.6   -0.423           7.55      0.984
+## 6    0.0747   0.628  1.56   2.75   4.12   5.30           NA         0.788
 ```
 
 The result is a dataframe of `nsims` + 1 observations with columns for
@@ -390,8 +390,11 @@ and linearly transform the data where
 \\mathbf{C}^{-1}
 \\mathbf{X}](http://chart.apis.google.com/chart?cht=tx&chl=%5Cmathbf%7BX%7D%5E%2A%20%3D%20%5Cmathbf%7BC%7D%5E%7B-1%7D%20%5Cmathbf%7BX%7D
 "\\mathbf{X}^* = \\mathbf{C}^{-1} \\mathbf{X}") as an equivalent
-estimator.
+estimator. A similar approach can be taken to account for heterogeneity
+utilizing Aronow and Samii’s multiple regression weights or moving the
+estimand from the ATE to the ATT or ATC.
 
+Other approaches to heterogenous effects are straightforward to apply.
 Splines, kernels, and random effects with quadratic penalties have the
 form
 
@@ -434,6 +437,12 @@ that is
 
 </center>
 
+Depending on the goal, one could estimate
+![\\lambda](http://chart.apis.google.com/chart?cht=tx&chl=%5Clambda
+"\\lambda") as a mixed model, through cross-validation, or select a
+small value merely for computational convenience resulting in a
+continuous analogy to model saturation.
+
 More generally, semiparametric regression models with non-normal
 responses often have the form
 
@@ -446,8 +455,55 @@ responses often have the form
 
 </center>
 
-6 where
+where
 ![\\mathbf{z}](http://chart.apis.google.com/chart?cht=tx&chl=%5Cmathbf%7Bz%7D
 "\\mathbf{z}") is the working variable. These may be put into the
 desired format by first applying the data augmentation trick and then
 whitening.
+
+Another line for extensions would be towards inference beyond the mean.
+A convenient parametric framework is the family of Generalized Additive
+Models for Location, Scale, and Shape (GAMLSS). Unlike GLMs which are
+constrained to the single parameter exponential family of distributions,
+GAMLSS currently allows for well over 100 continuous, discrete, and
+mixed distributions as well as transformed, truncated, or censored
+versons of those distributions. In all cases, all parameters of the
+response variable may be modeled using explanatory variables and
+additive smoothers including those mentioned in the previous section.
+Currently limited to distributions with four or fewer parameters, the
+general form is usually characterized as
+
+![\\begin{equation} \\mathbf{Y} \\overset{ind}{\\sim}
+\\mathcal{D}(\\mathbf{\\mu},\\mathbf{\\sigma},\\mathbf{\\nu},\\mathbf{\\tau})
+\\end{equation}](http://chart.apis.google.com/chart?cht=tx&chl=%5Cbegin%7Bequation%7D%20%20%5Cmathbf%7BY%7D%20%5Coverset%7Bind%7D%7B%5Csim%7D%20%5Cmathcal%7BD%7D%28%5Cmathbf%7B%5Cmu%7D%2C%5Cmathbf%7B%5Csigma%7D%2C%5Cmathbf%7B%5Cnu%7D%2C%5Cmathbf%7B%5Ctau%7D%29%20%5Cend%7Bequation%7D
+"\\begin{equation}  \\mathbf{Y} \\overset{ind}{\\sim} \\mathcal{D}(\\mathbf{\\mu},\\mathbf{\\sigma},\\mathbf{\\nu},\\mathbf{\\tau}) \\end{equation}")
+
+where
+
+![\\eta\_k = g\_k(\\theta) = \\mathbf{X}\_k \\beta\_k + \\mathbf{Z}\_k
+\\gamma\_k](http://chart.apis.google.com/chart?cht=tx&chl=%5Ceta_k%20%3D%20g_k%28%5Ctheta%29%20%3D%20%5Cmathbf%7BX%7D_k%20%5Cbeta_k%20%2B%20%5Cmathbf%7BZ%7D_k%20%5Cgamma_k
+"\\eta_k = g_k(\\theta) = \\mathbf{X}_k \\beta_k + \\mathbf{Z}_k \\gamma_k")
+
+for ![\\theta \\in
+\\{\\mathbf{\\mu},\\mathbf{\\sigma},\\mathbf{\\nu},\\mathbf{\\tau}\\}](http://chart.apis.google.com/chart?cht=tx&chl=%5Ctheta%20%5Cin%20%5C%7B%5Cmathbf%7B%5Cmu%7D%2C%5Cmathbf%7B%5Csigma%7D%2C%5Cmathbf%7B%5Cnu%7D%2C%5Cmathbf%7B%5Ctau%7D%5C%7D
+"\\theta \\in \\{\\mathbf{\\mu},\\mathbf{\\sigma},\\mathbf{\\nu},\\mathbf{\\tau}\\}")
+corresponding to ![k \\in
+\\{1,2,3,4\\}](http://chart.apis.google.com/chart?cht=tx&chl=k%20%5Cin%20%5C%7B1%2C2%2C3%2C4%5C%7D
+"k \\in \\{1,2,3,4\\}"), i.e. location, scale, skew, and kurtosis,
+although the exact number and definition of parameters depends on the
+distribution being fit. In the above,
+![\\mathbf{X}](http://chart.apis.google.com/chart?cht=tx&chl=%5Cmathbf%7BX%7D
+"\\mathbf{X}") represents fixed effects and
+![\\mathbf{Z}](http://chart.apis.google.com/chart?cht=tx&chl=%5Cmathbf%7BZ%7D
+"\\mathbf{Z}") represents random effects – including splines or kernels
+– with
+![g(\\cdot)](http://chart.apis.google.com/chart?cht=tx&chl=g%28%5Ccdot%29
+"g(\\cdot)") as the link function; GLMs, GAMs, GLMMs, and GAMMs are all
+special cases. Such models are currently fit with a combination of IRLS
+and backfitting; relying on quadratic smoothers means that they may be
+“whitened” and “augmented” in the exact same way as those raised
+above, allowing for sensitivity analysis to be conducted for hypotheses
+beyond mean effects (i.e. treatment effects on variance, skew,
+kurtosis). If one is unwilling to make parametric assumptions, expectile
+smoothing is a viable alternative to quantile regression which gives an
+explicit solution as a least squares problem.
